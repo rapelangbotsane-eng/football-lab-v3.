@@ -23,3 +23,16 @@ The app automatically downloads selected historical event datasets when the butt
 This is **historical research software**. StatsBomb's freely available data covers selected matches and seasons; it does **not** supply live fixtures, comprehensive current-league event data, injuries, lineups, or official PPDA. The prototype's upset-detection value and real match forecasting accuracy have **not yet been verified** on independent football match data. Pressing features are estimated and the goal simulation is statistical, not a possession-by-possession digital twin.
 
 Data credits: https://github.com/hudl/open-data
+
+
+## Connect the free football-data.org token (current fixtures)
+1. Open https://share.streamlit.io/ and choose the Football Lab app.
+2. Open Manage app → Settings → Secrets.
+3. Add a TOML entry (replace the placeholder with your own token):
+   `FOOTBALL_DATA_API_TOKEN = "YOUR_TOKEN_HERE"`
+4. Save and let Streamlit reload the GitHub code.
+5. Open the **Upcoming fixtures** tab, choose a league, and tap **Load current fixtures**.
+
+Do not commit the real token to this public repository. Free football-data.org accounts are rate-limited (10 requests/minute). The app caches match lists for 30 minutes and requests only one selected league at a time.
+
+**Forecast limitation:** The Upcoming fixtures tab makes *experimental Poisson goals/form estimates*, not forecasts from the advanced StatsBomb event-trained machine-learning model. This free API does not provide live xG, PPDA, ball progression, injuries, or lineups. These experimental probabilities have not been calibrated against held-out club-football results. Models will not be silently conflated.
