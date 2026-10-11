@@ -68,7 +68,7 @@ def current_season_results(api_matches,fixture_date,known_names):
     this prevents the false-history bug from fuzzy joining team names.
     """
     results=[];skipped=set()
-    cutoff=max("2026-07-01",max(r["date"] for r in known_names)+ "-") if False else "2026-07-01"
+    cutoff="2026-07-01"
     canonical_clubs={n for r in known_names for n in (r["home"],r["away"])}
     for m in api_matches:
         if m.get("status")!="FINISHED":continue
