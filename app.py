@@ -39,7 +39,7 @@ with tab_data:
     defaults=[s for s in choices if "Bundesliga" in s and "2023/2024" in s]
     chosen=st.multiselect("Historical seasons",list(choices),default=defaults[:1] if defaults else list(choices)[:1],max_selections=4)
     limit=st.slider("Maximum matches per season",25,450,125,25)
-    if st.button("Sync event data + train model",type="primary",disabled=not chosen,use_container_width=True):
+    if st.button("Sync event data + train model",type="primary",disabled=not chosen,width="stretch"):
         bar=st.progress(0);records=[];errors=[]
         for n,key in enumerate(chosen):
             spec=choices[key]
@@ -80,7 +80,7 @@ with tab_match:
             away=right.selectbox("Away team",teams,index=1)
             last=date.fromisoformat(max(x["date"] for x in r["records"]))
             chosen_date=st.date_input("Hypothetical match date",last+timedelta(days=7),min_value=last+timedelta(days=1))
-            if st.button("Analyse matchup",type="primary",use_container_width=True):
+            if st.button("Analyse matchup",type="primary",width="stretch"):
                 try:
                     st.session_state.forecast=make_prediction(r["model"],home,away,chosen_date.isoformat(),r["history"],r["elo"],r["last"])
                 except Exception as exc:st.error(str(exc))
@@ -94,10 +94,10 @@ with tab_match:
                 if p["low_data"]:st.error("Less than 5 event-covered past matches for at least one team. Treat the result as low confidence.")
                 if p["upset_watch"]:st.warning(f"Upset watch: {p['underdog']} underdog; +{p['underdog_uplift']:.1%} model uplift versus Elo proxy.")
                 st.subheader("10,000 score simulations")
-                st.dataframe(pd.DataFrame(p["top_scores"]),hide_index=True,use_container_width=True)
+                st.dataframe(pd.DataFrame(p["top_scores"]),hide_index=True,width="stretch")
                 st.caption("Statistical goal draws reweighted toward the classifier's outcome probabilities; not a physical simulation of football.")
                 st.subheader("Underlying team metrics")
-                st.dataframe(pd.DataFrame([dict(metric=k,home=v[0],away=v[1]) for k,v in p["metrics"].items()]),hide_index=True,use_container_width=True)
+                st.dataframe(pd.DataFrame([dict(metric=k,home=v[0],away=v[1]) for k,v in p["metrics"].items()]),hide_index=True,width="stretch")
                 st.download_button("Save forecast as JSON",json.dumps(p,indent=2),file_name="forecast.json",mime="application/json")
 
 with tab_test:
@@ -111,10 +111,10 @@ with tab_test:
         z.metric("Multiclass Brier",f"{report['brier_multiclass']:.3f}")
         st.caption(f"Train: {report['train_matches']} matches. Holdout: {report['test_matches']} matches starting {report['test_start']}. Same-day matches do not leak into features.")
         h=m["holdout"].copy();h["correct"]=h["forecast"]==h["outcome"]
-        st.dataframe(h,hide_index=True,use_container_width=True)
+        st.dataframe(h,hide_index=True,width="stretch")
         misses=h[~h["correct"]]
         st.subheader("Missed predictions")
-        st.dataframe(misses,hide_index=True,use_container_width=True)
+        st.dataframe(misses,hide_index=True,width="stretch")
 
 with tab_about:
     st.markdown("""This prototype works with **selected historical matches** from [StatsBomb Open Data](https://github.com/hudl/open-data).
