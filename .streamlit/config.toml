@@ -6,8 +6,5 @@ secondaryBackgroundColor = "#121E32"
 textColor = "#F0F6FC"
 font = "sans serif"
 
-[client]
-showErrorDetails = "none"
-
 [server]
 headless = true
