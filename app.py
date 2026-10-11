@@ -30,7 +30,7 @@ if "research" not in st.session_state and MODEL.exists() and RECORDS.exists():
         frame,history,elo,last=fixture_rows(records)
         st.session_state.research=dict(records=records,frame=frame,history=history,elo=elo,last=last,model=joblib.load(MODEL))
     except Exception as exc:st.warning(f"Could not restore previous training: {exc}")
-tab_data,tab_live,tab_match,tab_test,tab_about=st.tabs(["📥 Event-data research","⚽ Men\'s club predictions","🎯 Historical matchups","📊 Event backtest","ℹ️ About"])
+tab_data,tab_live,tab_advanced,tab_match,tab_test,tab_about=st.tabs(["📥 Event-data research","⚽ Men\'s club predictions","🔬 Advanced xG experiment","🎯 Historical matchups","📊 Event backtest","ℹ️ About"])
 
 with tab_data:
     st.subheader("Train using real historical match events")
@@ -76,6 +76,10 @@ with tab_data:
 with tab_live:
     from club_ui import render as render_club_predictions
     render_club_predictions()
+
+with tab_advanced:
+    from advanced_ui import render as render_advanced_research
+    render_advanced_research()
 
 with tab_match:
     r=st.session_state.get("research")
