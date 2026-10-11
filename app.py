@@ -7,9 +7,10 @@ import pandas as pd
 import streamlit as st
 from data_source import list_competitions,list_matches,collect
 from advanced_engine import fixture_rows,train_and_evaluate,make_prediction
+from live_data import LEAGUES, FootballDataError, fetch_season_matches, next_fixtures, forecast_fixture, kickoff
 
 st.set_page_config(page_title="Football Lab V3",page_icon="⚽",layout="wide")
-st.title("⚽ Football Lab V3 — Advanced Match Intelligence")
+st.title("⚽ Football Lab V3 — Advanced Research & Current Fixtures")
 st.warning("Research prototype: free StatsBomb event coverage is historical and incomplete. This is not a live fixture or injury feed. Match probabilities have not been proven reliable for current competitions.")
 ROOT=Path("research_workspace");ROOT.mkdir(exist_ok=True)
 MODEL=ROOT/"model.joblib";RECORDS=ROOT/"records.json"
@@ -19,13 +20,17 @@ def competitions():return list_competitions()
 @st.cache_data(ttl=43200)
 def fixtures(cid,sid):return list_matches(cid,sid)
 
+@st.cache_data(ttl=1800,show_spinner=False)
+def live_fixtures(league_code, _token):
+    return fetch_season_matches(_token, league_code)
+
 if "research" not in st.session_state and MODEL.exists() and RECORDS.exists():
     try:
         records=json.loads(RECORDS.read_text())
         frame,history,elo,last=fixture_rows(records)
         st.session_state.research=dict(records=records,frame=frame,history=history,elo=elo,last=last,model=joblib.load(MODEL))
     except Exception as exc:st.warning(f"Could not restore previous training: {exc}")
-tab_data,tab_match,tab_test,tab_about=st.tabs(["📥 Data & training","🎯 Analyse matchup","📊 Backtest & upsets","ℹ️ About"])
+tab_data,tab_live,tab_match,tab_test,tab_about=st.tabs(["📥 Data & training","📅 Upcoming fixtures","🎯 Analyse matchup","📊 Backtest & upsets","ℹ️ About"])
 
 with tab_data:
     st.subheader("Train using real historical match events")
@@ -67,6 +72,57 @@ with tab_data:
         b.metric("Unseen-match accuracy",f"{metrics['accuracy']:.1%}")
         c.metric("Baseline accuracy",f"{metrics['baseline_accuracy']:.1%}")
         st.caption("These are measured on held-out historical event-covered matches only, not current fixtures.")
+
+with tab_live:
+    st.subheader("Upcoming men's club matches — current-season data")
+    st.info("This tab uses football-data.org's scores and fixtures. Forecasts here are a simple, EXPERIMENTAL goals/form baseline, **not** the advanced StatsBomb-trained model. No live xG, pressure, progression, lineup or injury data is included.")
+    try:
+        token=st.secrets.get("FOOTBALL_DATA_API_TOKEN","")
+    except (FileNotFoundError,KeyError,AttributeError):
+        token=""
+    if not token:
+        st.warning("API token not connected yet. In Streamlit Community Cloud, open Manage app → Settings → Secrets. Add FOOTBALL_DATA_API_TOKEN = \"your-token\" and save. Never share the token or put it in GitHub.")
+    else:
+        league_label=st.selectbox("Select league",list(LEAGUES))
+        league_code=LEAGUES[league_label]
+        if st.button("Load current fixtures",type="primary",width="stretch"):
+            try:
+                snapshot=live_fixtures(league_code,token)
+                st.session_state.live_snapshot=snapshot
+                st.session_state.live_code=league_code
+                st.success("Connected to football-data.org.")
+            except FootballDataError as exc:
+                st.error(str(exc))
+                st.session_state.pop("live_snapshot",None)
+        snapshot=st.session_state.get("live_snapshot") if st.session_state.get("live_code")==league_code else None
+        if snapshot:
+            from zoneinfo import ZoneInfo
+            matches=snapshot["matches"]
+            upcoming=next_fixtures(matches,horizon_days=21)
+            historical=sum(1 for m in matches if m.get("status")=="FINISHED")
+            st.caption(f"API snapshot: {snapshot['fetched'][:19]} UTC · {historical} finished matches available this season · Results may be delayed on the free plan. Cached for 30 minutes.")
+            if not upcoming:
+                st.warning("No scheduled fixtures in the next 21 days for this league. Try another league.")
+            for fixture in upcoming[:15]:
+                h=fixture.get("homeTeam") or {}
+                a=fixture.get("awayTeam") or {}
+                start=kickoff(fixture)
+                when=start.astimezone(ZoneInfo("Africa/Johannesburg")).strftime("%d %b %Y, %H:%M SAST") if start else "Time unavailable"
+                title=f"{h.get('shortName') or h.get('name','Home')} vs {a.get('shortName') or a.get('name','Away')} · {when}"
+                with st.expander(title):
+                    estimate=forecast_fixture(fixture,matches)
+                    if not estimate:
+                        st.warning("Insufficient fixture information.")
+                    elif estimate["insufficient"]:
+                        st.warning(f"Insufficient recent results for a basic forecast: home {estimate['home_samples']}, away {estimate['away_samples']}. Minimum 5 matches per team. No prediction generated.")
+                    else:
+                        c1,c2,c3=st.columns(3)
+                        c1.metric("Home win (1)",f"{estimate['p_home']:.1%}")
+                        c2.metric("Draw (X)",f"{estimate['p_draw']:.1%}")
+                        c3.metric("Away win (2)",f"{estimate['p_away']:.1%}")
+                        st.write(f"**Experimental pick:** {estimate['pick']} · Most likely score: {estimate['top_score']}")
+                        st.caption(f"Based on only {estimate['home_samples']} recent home-team and {estimate['away_samples']} away-team results from this league. Model-based goal rates: {estimate['home_xg']:.2f} / {estimate['away_xg']:.2f} (not provider xG). These forecasts have not passed a real historical calibration test.")
+            st.caption("The upcoming-fixtures baseline does not validate or replace the advanced historical engine. A proper current-data model and prospective scorecard are next.")
 
 with tab_match:
     r=st.session_state.get("research")
