@@ -66,13 +66,26 @@ def render():
         dict(method="Elo-only baseline",**report["elo"]),
         dict(method="Validation-selected",**report["selected"]),
     ]),hide_index=True,width="stretch")
-    st.subheader("Experimental upset detection (historical)")
+    st.subheader("Machine-learning upset challenger — historical 2025/26")
     u=trained["upset"]
-    st.write(f"2025/26 holdout: {u['alerts']} alerts · {u['captured']} underdog wins flagged · {u['false_alarms']} false alarms · {u['underdog_wins']} underdog wins total.")
-    st.caption("An 'upset' here means an Elo underdog win, not a betting-odds upset. The alerts are experimental. An empty alert count is valid; success has not been established.")
+    st.write(f"**Elo underdog victories:** {u['underdog_wins']} / {trained['test_size']} · **ML alerts:** {u['alerts']} · **Wins captured:** {u['captured']} · **False alarms:** {u['false_alarms']}.")
+    c1,c2,c3=st.columns(3)
+    c1.metric("Alert precision",f"{u['hit_rate']:.1%}" if u['hit_rate'] is not None else "N/A")
+    c2.metric("Underdog recall",f"{u['recall']:.1%}" if u['recall'] is not None else "N/A")
+    c3.metric("Positive ML uplift cases",str(u['positive_uplifts']))
+    st.caption("Upset alert = ML challenger assigns the Elo underdog at least 7 percentage points more winning probability than Elo and at least 27% absolute win chance. Thresholds are predefined. Underdog is defined by Elo, NOT bookmaker odds.")
+    if trained["selected"]=="elo":
+        st.info("Elo won the 2024/25 validation and remains the PRIMARY prediction engine. The ML upset signals below are CHALLENGER-ONLY research and are not evidence of a superior live prediction model.")
+    st.caption(f"Top {u['top_candidates']} positive-uplift candidates captured {u['top_captured']} underdog wins, regardless of the fixed alert threshold. Ranking is for diagnosis only, not a validated betting strategy.")
+    holdout=trained["holdout"]
+    with st.expander("See top historical upset challenger candidates"):
+        top=holdout[holdout["ml_upset_uplift"]>0].sort_values("ml_upset_uplift",ascending=False).head(15)
+        if len(top):
+            st.dataframe(top[["date","home","away","outcome","elo_underdog_probability","ml_underdog_probability","ml_upset_uplift","ml_challenger_alert","elo_underdog_won"]],hide_index=True,width="stretch")
+        else:st.info("ML never raised the underdog probability above Elo on this holdout.")
     with st.expander("See all held-out match predictions"):
-        st.dataframe(trained["holdout"],hide_index=True,width="stretch")
-        st.download_button("Download the 2025/26 backtest (CSV)",trained["holdout"].to_csv(index=False),file_name=f"football_lab_{code}_2025_holdout.csv",mime="text/csv",key=f"download_{code}")
+        st.dataframe(holdout,hide_index=True,width="stretch")
+        st.download_button("Download the 2025/26 backtest (CSV)",holdout.to_csv(index=False),file_name=f"football_lab_{code}_2025_holdout.csv",mime="text/csv",key=f"download_{code}")
     st.divider()
     st.subheader("Upcoming fixtures")
     snapshot=view["snapshot"]
@@ -112,8 +125,8 @@ def render():
             y.metric("Draw (X)",f"{p['X']:.1%}")
             z.metric("Away win (2)",f"{p['2']:.1%}")
             st.write(f"**Prediction:** {prediction['pick']} · **Engine:** {'Trained club ML' if prediction['engine']=='trained' else 'Elo only (better in validation)'}")
-            if prediction["upset_flag"]:
-                st.warning(f"Upset watch: {prediction['underdog']} underdog · {prediction['underdog_uplift']:+.1%} probability difference versus Elo. Experimental, not a verified edge.")
+            if prediction["ml_challenger_alert"]:
+                st.warning(f"RESEARCH-ONLY ML upset signal: {prediction['underdog']} underdog · ML probability {prediction['ml_underdog_probability']:.1%}, {prediction['underdog_uplift']:+.1%} versus Elo. {'Selected trained model' if prediction['engine']=='trained' else 'The primary prediction remains Elo, which performed better in validation.'} Historical alert precision is shown above; this is not a verified edge.")
             st.caption(f"Based on {prediction['history_count_home']} / {prediction['history_count_away']} historical+current matches. Advanced event data is NOT in these live predictions.")
             simple=forecast_fixture(game,matches)
             if simple and not simple.get("insufficient"):
