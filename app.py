@@ -11,7 +11,7 @@ from live_data import LEAGUES, FootballDataError, fetch_season_matches, next_fix
 
 st.set_page_config(page_title="Football Lab V3",page_icon="⚽",layout="wide")
 st.title("⚽ Football Lab V3.1 — Club Predictions & Advanced Research")
-st.warning("Research prototype: free StatsBomb event coverage is historical and incomplete. This is not a live fixture or injury feed. Match probabilities have not been proven reliable for current competitions.")
+st.warning("Research prototype: the men\'s club tab uses historical league results plus current fixtures, but NOT live xG, pressing, injuries or lineups. The event-data tabs use selected older StatsBomb matches. Current prediction accuracy remains unproven.")
 ROOT=Path("research_workspace");ROOT.mkdir(exist_ok=True)
 MODEL=ROOT/"model.joblib";RECORDS=ROOT/"records.json"
 
