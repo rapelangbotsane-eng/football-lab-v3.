@@ -6,8 +6,13 @@ from club_data import historical_league, current_season_results, fixture_teams, 
 from club_engine import build_history, train_model, forecast
 from live_data import LEAGUES, FootballDataError, fetch_season_matches, next_fixtures, kickoff, forecast_fixture
 
+# Increase this whenever the trained report schema or engine logic changes.
+# Including it in the cache key avoids reusing yesterday's old model.
+CLUB_MODEL_VERSION="3.1-upset-challenger-20261011"
+
 @st.cache_resource(ttl=24*3600,show_spinner=False)
-def club_model(code):
+def club_model(code,model_version):
+    # model_version intentionally participates in Streamlit's cache key.
     # Six seasons of men's club results, no token, odds, or private credentials.
     rows=historical_league(code)
     history,_=build_history(rows)
@@ -38,16 +43,27 @@ def render():
     if st.button("Load & analyse matches",type="primary",width="stretch",disabled=not supported):
         try:
             with st.spinner("Downloading free historical seasons and training the club model..."):
-                history,trained=club_model(code)
+                history,trained=club_model(code,CLUB_MODEL_VERSION)
             with st.spinner("Fetching current fixtures..."):
                 snapshot=live_matches(code,token)
-            st.session_state["club_view"]=dict(code=code,history=history,trained=trained,snapshot=snapshot)
+            st.session_state["club_view"]=dict(code=code,model_version=CLUB_MODEL_VERSION,history=history,trained=trained,snapshot=snapshot)
             st.success("Historical backtest and current fixtures are loaded.")
         except (HistoricalDataError,FootballDataError,ValueError,KeyError,TypeError) as exc:
             st.session_state.pop("club_view",None)
             st.error(f"Could not complete analysis for this league: {exc}")
             st.info("The free historical feed might be temporarily unavailable. You can try again or choose another supported league.")
     view=st.session_state.get("club_view")
+    if view and view.get("code")==code:
+        stored=view.get("trained") or {}
+        fields=set(stored.get("upset") or {})
+        cols=set(getattr(stored.get("holdout"),"columns",[]))
+        needed={"recall","positive_uplifts","top_candidates","top_captured"}
+        required_columns={"ml_upset_uplift","ml_challenger_alert","elo_underdog_won"}
+        if (view.get("model_version")!=CLUB_MODEL_VERSION or
+                not needed.issubset(fields) or not required_columns.issubset(cols)):
+            st.session_state.pop("club_view",None)
+            view=None
+            st.warning("An older cached model/report was detected and safely cleared. Tap Load & analyse matches to rebuild the correct upset analysis.")
     if not view or view["code"]!=code:
         st.caption("The first league load may take a minute while several seasons are downloaded.")
         return
@@ -71,7 +87,7 @@ def render():
     st.write(f"**Elo underdog victories:** {u['underdog_wins']} / {trained['test_size']} · **ML alerts:** {u['alerts']} · **Wins captured:** {u['captured']} · **False alarms:** {u['false_alarms']}.")
     c1,c2,c3=st.columns(3)
     c1.metric("Alert precision",f"{u['hit_rate']:.1%}" if u['hit_rate'] is not None else "N/A")
-    c2.metric("Underdog recall",f"{u['recall']:.1%}" if u['recall'] is not None else "N/A")
+    c2.metric("Underdog recall",f"{u.get('recall'):.1%}" if u.get('recall') is not None else "N/A")
     c3.metric("Positive ML uplift cases",str(u['positive_uplifts']))
     st.caption("Upset alert = ML challenger assigns the Elo underdog at least 7 percentage points more winning probability than Elo and at least 27% absolute win chance. Thresholds are predefined. Underdog is defined by Elo, NOT bookmaker odds.")
     if trained["selected"]=="elo":
