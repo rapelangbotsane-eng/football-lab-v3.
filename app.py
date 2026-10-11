@@ -10,7 +10,7 @@ from advanced_engine import fixture_rows,train_and_evaluate,make_prediction
 from live_data import LEAGUES, FootballDataError, fetch_season_matches, next_fixtures, forecast_fixture, kickoff
 
 st.set_page_config(page_title="Football Lab V3",page_icon="⚽",layout="wide")
-st.title("⚽ Football Lab V3.1 — Club Predictions & Advanced Research")
+st.title("⚽ Football Lab V3.2 — Club Predictions & Advanced Research")
 st.warning("Research prototype: the men\'s club tab uses historical league results plus current fixtures, but NOT live xG, pressing, injuries or lineups. The event-data tabs use selected older StatsBomb matches. Current prediction accuracy remains unproven.")
 ROOT=Path("research_workspace");ROOT.mkdir(exist_ok=True)
 MODEL=ROOT/"model.joblib";RECORDS=ROOT/"records.json"
