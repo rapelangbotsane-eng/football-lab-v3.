@@ -162,6 +162,12 @@ def render_home():
     apply_style();_header()
     now=datetime.now(SA_TIME)
     st.markdown(f"**{now.strftime('%A %d %B %Y')}** &nbsp; · &nbsp; South Africa time")
+    st.radio("Navigate",PAGES,horizontal=True,key="scout_nav",label_visibility="collapsed")
+    page=st.session_state.scout_nav
+    if page==PAGES[4]:
+        from research_ui import render as research_render
+        research_render()
+        return
     token=_secrets_token()
     if not token:
         st.error("The match-data token is missing. Add FOOTBALL_DATA_API_TOKEN in Streamlit → Manage app → Settings → Secrets. Never put the token in public GitHub.")
@@ -189,12 +195,6 @@ def render_home():
             for k,v in snapshot["errors"].items():st.warning(f"{k}: {v}")
     not_covered=sum(sum(int(n.get(k,0)) for k in ("unmapped","insufficient","failed")) for n in snapshot["coverage"].values())
     if not_covered:st.caption(f"{not_covered} upcoming match(es) were not forecast because names/data were missing or predictions failed; excluded, not guessed.")
-    st.radio("Navigate",PAGES,horizontal=True,key="scout_nav",label_visibility="collapsed")
-    page=st.session_state.scout_nav
-    if page==PAGES[4]:
-        from research_ui import render as research_render
-        research_render()
-        return
     if not cards:
         _stats(0,0,0)
         _empty("No usable upcoming matches were found in the selected leagues, or the free API did not return the fixtures. Open scan errors or choose another league and refresh.")
