@@ -139,6 +139,47 @@ def evaluate(y,p):
         log_loss=float(-np.mean(np.log(np.maximum(p[np.arange(len(y)),idx],1e-12)))),
         brier=float(np.mean(np.sum((p-actual)**2,axis=1))))
 
+def upset_diagnostics(ml_probs, elo_probs, actual):
+    """Evaluate a PREDEFINED challenger-versus-Elo signal on independent games.
+
+    Alerts are determined from the ML challenger, regardless of which engine
+    validation selects for ordinary 1/X/2 forecasts. This cannot alter which
+    engine was selected. 'Underdog' refers only to Elo-estimated win chances.
+    """
+    ml_probs=np.asarray(ml_probs,dtype=float)
+    elo_probs=np.asarray(elo_probs,dtype=float)
+    outcomes=np.asarray(actual)
+    if ml_probs.shape != elo_probs.shape or ml_probs.ndim != 2 or ml_probs.shape[1] != 3:
+        raise ValueError("Upset inputs must be two matching N x 3 probability arrays")
+    if ml_probs.shape[0]!=len(outcomes):
+        raise ValueError("One actual outcome is required per matchup")
+    underdog=np.where(elo_probs[:,0]<elo_probs[:,2],0,2)
+    indices=np.arange(len(outcomes))
+    reference=elo_probs[indices,underdog]
+    challenger=ml_probs[indices,underdog]
+    uplift=challenger-reference
+    # These thresholds were part of V3.1 before seeing the 2025/26 holdout.
+    alerts=(uplift>=.07)&(challenger>=.27)
+    did_win=np.array([OUTCOMES.index(x) for x in outcomes])==underdog
+    count=int(alerts.sum())
+    positive=np.flatnonzero(uplift>0)
+    top=positive[np.argsort(-uplift[positive])[:10]]
+    return dict(
+        alerts=count,underdog_wins=int(did_win.sum()),
+        captured=int((alerts&did_win).sum()),
+        false_alarms=int((alerts&~did_win).sum()),
+        hit_rate=(float((alerts&did_win).sum()/count) if count else None),
+        recall=(float((alerts&did_win).sum()/did_win.sum()) if did_win.any() else None),
+        positive_uplifts=int(len(positive)),
+        top_candidates=int(len(top)),
+        top_captured=int(did_win[top].sum()),
+        underdog_indices=underdog,
+        underdog_wins_mask=did_win,
+        signal_uplift=uplift,
+        challenger_underdog_probs=challenger,
+        elo_underdog_probs=reference,
+        alert_mask=alerts)
+
 def train_model(frame):
     # A calendar-season split: train 2020-23; tune 2024; test 2025 only ONCE.
     train=frame[frame.season<=2023].copy()
@@ -163,22 +204,21 @@ def train_model(frame):
     best=test_ml if selected=="trained" else test_elo
     actual=test.outcome.to_numpy()
     comparison=dict(trained=evaluate(actual,test_ml),elo=evaluate(actual,test_elo),selected=evaluate(actual,best))
-    # A historical proxy: Elo-underestimated winners. Not bookmaker upsets.
-    underdog=np.where(test_elo[:,0]<test_elo[:,2],0,2)
-    baseline_underdog=test_elo[np.arange(len(test)),underdog]
-    predicted_underdog=best[np.arange(len(test)),underdog]
-    alerts=(predicted_underdog-baseline_underdog>=.07)&(predicted_underdog>=.27)
-    did_win=np.array([OUTCOMES.index(x) for x in actual])==underdog
-    alert_count=int(alerts.sum())
-    upset=dict(alerts=alert_count,underdog_wins=int(did_win.sum()),
-        captured=int((alerts&did_win).sum()),
-        false_alarms=int((alerts&~did_win).sum()),
-        hit_rate=(float((alerts&did_win).sum()/alert_count) if alert_count else None))
+    # Score the ML upset CHALLENGER even when validation picks Elo for 1X2.
+    # Only diagnose; never choose thresholds or refit the model on test matches.
+    signal=upset_diagnostics(test_ml,test_elo,actual)
+    upset={k:v for k,v in signal.items() if k not in (
+        "underdog_indices","underdog_wins_mask","signal_uplift",
+        "challenger_underdog_probs","elo_underdog_probs","alert_mask")}
     holdout=test[["date","home","away","outcome"]].copy()
     holdout["forecast"]=np.asarray(OUTCOMES)[best.argmax(axis=1)]
     holdout["p_1"]=best[:,0];holdout["p_X"]=best[:,1];holdout["p_2"]=best[:,2]
     holdout["elo_1"]=test_elo[:,0];holdout["elo_X"]=test_elo[:,1];holdout["elo_2"]=test_elo[:,2]
-    holdout["upset_alert"]=alerts
+    holdout["ml_underdog_probability"]=signal["challenger_underdog_probs"]
+    holdout["elo_underdog_probability"]=signal["elo_underdog_probs"]
+    holdout["ml_upset_uplift"]=signal["signal_uplift"]
+    holdout["ml_challenger_alert"]=signal["alert_mask"]
+    holdout["elo_underdog_won"]=signal["underdog_wins_mask"]
     # Final production model may use all HISTORICAL seasons, never the live future.
     classifier.fit(frame[cols],frame.outcome)
     return dict(model=classifier,columns=cols,temperature=temp,selected=selected,
@@ -191,13 +231,17 @@ def forecast(trained,records,home,away,fixture_day):
     if nh<5 or na<5:
         return dict(available=False,reason=f"Insufficient historical data for these teams: {nh} / {na} matches")
     x=pd.DataFrame([f])
-    p=soften(probabilities(trained["model"],x,trained["columns"]),trained["temperature"])[0]
-    if trained["selected"]=="elo":p=elo
+    challenger=soften(probabilities(trained["model"],x,trained["columns"]),trained["temperature"])[0]
+    p=challenger if trained["selected"]=="trained" else elo
     under=0 if elo[0]<elo[2] else 2
-    uplift=float(p[under]-elo[under])
-    upset_flag=bool(uplift>=.07 and p[under]>=.27 and trained["selected"]=="trained")
+    uplift=float(challenger[under]-elo[under])
+    challenger_alert=bool(uplift>=.07 and challenger[under]>=.27)
+    upset_flag=bool(challenger_alert and trained["selected"]=="trained")
     return dict(available=True,probabilities=dict(zip(OUTCOMES,map(float,p))),
         pick=OUTCOMES[int(np.argmax(p))],baseline=dict(zip(OUTCOMES,map(float,elo))),
-        upset_flag=upset_flag,underdog=OUTCOMES[under],underdog_uplift=uplift,
+        upset_flag=upset_flag,ml_challenger_alert=challenger_alert,
+        ml_underdog_probability=float(challenger[under]),
+        ml_challenger_probabilities=dict(zip(OUTCOMES,map(float,challenger))),
+        underdog=OUTCOMES[under],underdog_uplift=uplift,
         history_count_home=nh,history_count_away=na,engine=trained["selected"],
         coverage="Completed match results, Elo, home/away form, rest (NO current xG / pressing data).")
