@@ -1,6 +1,7 @@
 import unittest
+import numpy as np
 from datetime import date, timedelta
-from club_engine import canonical, build_history, train_model, forecast, features_for_fixture
+from club_engine import canonical, build_history, train_model, forecast, features_for_fixture, upset_diagnostics
 from club_data import match_api_name, fixture_teams, current_season_results
 
 def fake_results():
@@ -46,6 +47,27 @@ class ClubEngineTests(unittest.TestCase):
         extra=dict(date="2026-10-12",season=2026,home="team1",away="team2",hg=9,ag=0)
         b=features_for_fixture(self.rows+[extra],"team1","team2","2026-10-12")[0]
         self.assertEqual(a,b)
+
+    def test_ml_challenger_alerts_even_when_selected_elo(self):
+        # The prior bug compared selected Elo against itself and always yielded zero.
+        # These fixed test inputs must identify a meaningful ML-versus-Elo uplift.
+        elo=np.array([[.65,.25,.10],[.22,.25,.53],[.40,.25,.35]])
+        challenger=np.array([[.39,.23,.38],[.41,.20,.39],[.33,.27,.40]])
+        actual=np.array(["2","1","X"])
+        result=upset_diagnostics(challenger,elo,actual)
+        self.assertEqual(result["alerts"],2)
+        self.assertEqual(result["captured"],2)
+        self.assertEqual(result["false_alarms"],0)
+        self.assertEqual(result["underdog_wins"],2)
+        self.assertAlmostEqual(result["hit_rate"],1.)
+        self.assertAlmostEqual(result["recall"],1.)
+
+    def test_upset_report_is_generated_for_holdout(self):
+        self.assertEqual(self.model["upset"]["underdog_wins"],int(self.model["holdout"]["elo_underdog_won"].sum()))
+        self.assertEqual(self.model["upset"]["alerts"],int(self.model["holdout"]["ml_challenger_alert"].sum()))
+        self.assertEqual(self.model["upset"]["captured"]+self.model["upset"]["false_alarms"],self.model["upset"]["alerts"])
+        self.assertIn("ml_upset_uplift",self.model["holdout"].columns)
+        self.assertIn("ml_underdog_probability",self.model["holdout"].columns)
 
     def test_api_mapping_does_not_guess(self):
         hist=[dict(home="man city",away="everton",date="2025-10-10",season=2025,hg=1,ag=1)]
