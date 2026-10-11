@@ -8,7 +8,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import HistGradientBoostingRegressor
-from sklearn.metrics import accuracy_score,log_loss
+from sklearn.metrics import accuracy_score
 
 LABELS=["1","X","2"]
 METRICS=["xg","xga","shots","big_chances","progressive_passes","progressive_carries","box_entries","final_third_entries","pressures","press_to_regain","high_regains","ppda_proxy","goals","goals_against"]
@@ -118,7 +118,10 @@ def train_and_evaluate(df,min_train=60,min_test=20):
         r=HistGradientBoostingRegressor(loss="poisson",max_iter=90,max_leaf_nodes=7,min_samples_leaf=15,l2_regularization=25,random_state=42)
         r.fit(X[tr],f.loc[tr,col]);regressors[key]=r
     report=dict(matches=len(f),train_matches=int(tr.sum()),test_matches=int(te.sum()),test_start=threshold,
-        accuracy=float(accuracy_score(labels,predicted)),log_loss=float(log_loss(labels,p,labels=LABELS)),
+        # Cross-entropy computed explicitly to preserve 1/X/2 probability-column order.
+        # sklearn.metrics.log_loss otherwise sorts class labels as 1/2/X.
+        accuracy=float(accuracy_score(labels,predicted)),
+        log_loss=float(-np.mean(np.log(np.clip(p[np.arange(len(labels)),[LABELS.index(label) for label in labels]],1e-15,1.0)))),
         brier_multiclass=float(np.mean(np.sum((p-actual)**2,axis=1))),
         baseline_accuracy=float(np.mean(labels==f.loc[tr,"outcome"].value_counts().idxmax())))
     holdout=f.loc[te,["date","home","away","hg","ag","outcome"]].copy()
