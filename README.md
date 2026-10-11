@@ -74,3 +74,19 @@ Data source: https://understat.com (unofficial read-only feed described by commu
 
 ### Can models combine many data types?
 Yes. They can combine match results, Elo, xG, pressing and progression if they refer to the same real entities, have reliable timestamps, and measure data available BEFORE kickoff. **Historical StatsBomb/Wyscout progression features cannot be silently treated as recent match features.** The next phase would be a source coverage matrix and an event-derived feature stream only if equivalent current and historical coverage exists. More predictors do not guarantee lower error; ablation studies test incremental value.
+
+
+## V3.3 — Mobile weekly scout
+
+Open the **existing Streamlit app** on a phone, then select leagues under **Weekly scan settings** and tap **Build / refresh weekly brief**. The mobile-first landing page has:
+- **🏠 Brief**: strongest upcoming estimates, upset-radar signals and next fixtures;
+- **⭐ 60%+ picks**: only the most likely individual 1/X/2 outcomes at or above the chosen threshold (60% default). This is *not* a bet recommendation or guaranteed accuracy;
+- **⚡ Upset watch**: research-only ML challenger signals with at least +7 percentage points over Elo for the underdog and at least a 27% ML underdog probability, independent of which ordinary 1/X/2 engine won validation. Signals are not bookmaker value or proof of an edge;
+- **📅 Matches**: all successfully modeled matches, kickoff shown in SAST, and expandable source/engine information;
+- **🔬 Research**: the original historical model, advanced xG experiment, event-data research, retrospective tests and exports are retained unchanged under a secondary section.
+
+Runs within the football-data.org free API constraints. Default scan is five major European leagues for the next seven days; settings also offer 14 days or other supported leagues. One chronological team-state pass per league makes many upcoming predictions without re-training each fixture. The underlying per-league classifiers and API snapshots are cached; pressing **refresh** updates forecasts based on the source snapshot when the API cache expires. API errors and missing historical club matches are explicitly reported; those fixtures are excluded rather than guessed. Weekly shortlists persist for the current Streamlit browser session, not permanently across app restarts; V3.3 does NOT claim background automation or push notifications.
+
+The responsive color system uses Streamlit's built-in dark theme with custom midnight/lime styling. Add the hosted URL to an iPhone Home Screen in Safari (Share → Add to Home Screen) for an app-like shortcut. No native iOS binary or App Store publication is claimed.
+
+**Data caveat:** the live shortlisted probabilities are still the results-based Elo/form model selected on earlier validation. Understat's xG/PPDA research is not blended into live suggestions until it is verified on genuinely new results. Historical probability estimates are not verified betting odds or financial advice.
