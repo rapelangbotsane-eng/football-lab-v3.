@@ -56,3 +56,21 @@ Historical results: https://www.football-data.co.uk/downloadm.php (free historic
 Current fixtures, dates and completed matches: https://www.football-data.org/documentation/quickstart (free plan, access-dependent).
 No bookmaker odds, future match results, live StatsBomb events, xG, pressing efficiency, player availability or confirmed lineups are included in V3.1 current-game forecasts. The separate **historical event-data** engine remains available for research; its metrics are NOT silently mixed into live predictions.
 Free-source availability, historical quality, missing team aliases and generalization to unseen seasons are still risks. Real current-game forecasting quality is unverified until prospective forecasts are logged and scored.
+
+
+## V3.2 — Advanced xG / PPDA research experiment
+
+Open the **🔬 Advanced xG experiment** tab and press **Run free Premier League xG experiment**. This is an opt-in research workflow. It fetches one EPL season per year (2020–2025) from the community-documented Understat AJAX feed, extracts xG, xGA, non-penalty xG, expected points, PPDA and deep completions, then matches the events to the existing historical results by *exact fixture date, normalized team names and final score*. Unmatched fixtures remain unfilled; we do NOT fabricate advanced data.
+
+Every rolling advanced metric uses **only matches before the prediction day**. On the same eligible fixtures, the experiment compares four models:
+1. Elo only.
+2. Elo + basic result/venue features.
+3. Elo + result/venue + advanced xG and expected points.
+4. Elo + result/venue + xG + PPDA and deep completions.
+
+Historical training: 2020/21–2023/24. Validation and temperature selection: 2024/25. Retrospective diagnosis: 2025/26. **This 2025/26 dataset has previously been studied in V3.1, so it is not a pristine final holdout.** Trust a prospective, timestamped 2026/27 evaluation over retrospective gains. The experiment will *not* switch current 1X2 predictions to the advanced model; those continue to use the prior validated Elo/form model until we prove the new data's availability and value on future results.
+
+Data source: https://understat.com (unofficial read-only feed described by community tooling); see https://soccerdata.readthedocs.io/en/latest/datasources/Understat.html. No guaranteed API or general redistribution rights are asserted. If access fails, stops, or is disallowed, don't bypass restrictions or scrape through protective measures. The existing app works without Understat. All sources should be credited, and any commercial deployment requires a separate licensing review.
+
+### Can models combine many data types?
+Yes. They can combine match results, Elo, xG, pressing and progression if they refer to the same real entities, have reliable timestamps, and measure data available BEFORE kickoff. **Historical StatsBomb/Wyscout progression features cannot be silently treated as recent match features.** The next phase would be a source coverage matrix and an event-derived feature stream only if equivalent current and historical coverage exists. More predictors do not guarantee lower error; ablation studies test incremental value.
