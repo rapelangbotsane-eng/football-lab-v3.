@@ -36,12 +36,16 @@ def render():
     with tab_data:
         st.subheader("Train using real historical match events")
         st.write("Select historical competition seasons, then tap **Sync and train**. Downloads can take a few minutes. This does not supply up-to-date metrics for today's teams.")
-        try:
-            seasons=competitions()
-            choices={f"{c.get('competition_name')} · {c.get('season_name')} ({c['competition_id']}/{c['season_id']})":c for c in seasons}
-        except Exception as exc:
-            st.error(f"Could not access the historical data feed: {exc}")
-            choices={}
+        # Historical source calls used to run automatically whenever Research
+        # was opened, blocking iPhone navigation. Opt-in keeps tab changes instant.
+        if st.button("Load historical event seasons",key="research_load_competitions"):
+            try:
+                st.session_state.research_seasons=competitions()
+            except Exception as exc:
+                st.error(f"Could not access the historical data feed: {exc}")
+        seasons=st.session_state.get("research_seasons",[])
+        choices={f"{c.get('competition_name')} · {c.get('season_name')} ({c['competition_id']}/{c['season_id']})":c for c in seasons}
+        if not seasons:st.caption("Tap Load historical event seasons when you want to work with the optional StatsBomb research data.")
         defaults=[s for s in choices if "Bundesliga" in s and "2023/2024" in s]
         chosen=st.multiselect("Historical seasons",list(choices),default=defaults[:1] if defaults else list(choices)[:1],max_selections=4)
         limit=st.slider("Maximum matches per season",25,450,125,25)
