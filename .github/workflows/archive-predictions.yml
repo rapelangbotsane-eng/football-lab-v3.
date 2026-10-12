@@ -1,0 +1,37 @@
+name: Archive Football Lab predictions
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: football-lab-tracker
+  cancel-in-progress: false
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install runtime dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Capture predictions and completed match outcomes
+        env:
+          FOOTBALL_DATA_API_TOKEN: ${{ secrets.FOOTBALL_DATA_API_TOKEN }}
+        run: python tracker_job.py
+      - name: Save updated tracker (no API tokens)
+        run: |
+          git config user.name "football-lab-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/tracker_archive.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Update archived pre-match predictions and verified results"
+            git push
+          else
+            echo "No tracker changes to save."
+          fi
