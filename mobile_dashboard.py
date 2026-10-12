@@ -26,13 +26,25 @@ h2{font-size:1.46rem!important}h3{font-size:1.2rem!important}
 [data-testid="stMetric"]{background:#121e32;border:1px solid #26364d;border-radius:16px;padding:13px!important}
 [data-testid="stMetricLabel"]{color:#9baec4}
 [data-testid="stMetricValue"]{font-size:1.85rem!important;color:#edf7fe}
-div[data-testid="stRadio"]>div{display:flex;flex-wrap:nowrap!important;overflow-x:auto;gap:.30rem;
-padding:5px 0 10px;scrollbar-width:none}
-div[data-testid="stRadio"] label{white-space:nowrap;border:1px solid #253752;background:#111d30;display:inline-flex;align-items:center;gap:7px;
-padding:9px 12px;border-radius:12px;min-height:42px}
-div[data-testid="stRadio"] label:has(input:checked){border-color:#c8f57d;background:#23332a}
-div[data-testid="stRadio"] label p{font-size:.83rem;font-weight:650}
-div[data-testid="stRadio"] label>div:first-child{display:none!important}
+/* Compact navigation: six real buttons, three columns and two rows. */
+.st-key-nav_grid [data-testid="stVerticalBlock"]{gap:.48rem}
+.st-key-nav_grid [data-testid="stHorizontalBlock"]{gap:8px}
+.st-key-nav_grid [data-testid="column"]{min-width:0}
+.st-key-nav_grid div.stButton>button{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:center!important;text-align:center!important;gap:7px!important;
+ width:100%!important;min-width:0!important;min-height:82px!important;
+ margin:0!important;padding:11px 3px!important;border-radius:14px!important;
+ background:#111d30!important;border:1px solid #30425b!important;
+ color:#f3f7fc!important;font-size:12.5px!important;font-weight:700!important;
+ line-height:1.15!important;white-space:normal!important;
+ box-shadow:none!important;transition:background-color .15s ease,border-color .15s ease;
+}
+.st-key-nav_grid div.stButton>button[kind="primary"]{
+ background:#23352b!important;border-color:#c8f57d!important;color:#f3f7fc!important;
+}
+.st-key-nav_grid div.stButton>button:hover,
+.st-key-nav_grid div.stButton>button:focus-visible{border-color:#c8f57d!important}
 html,body,#root,[data-testid="stApp"],[data-testid="stAppViewContainer"]{
  max-width:100%;overflow-x:clip!important;overscroll-behavior-x:none!important;
  scroll-behavior:auto!important;
@@ -42,15 +54,8 @@ html,body,#root,[data-testid="stApp"],[data-testid="stAppViewContainer"]{
  -webkit-overflow-scrolling:touch;
 }
 [data-testid="stMainBlockContainer"]{box-sizing:border-box;min-width:0;overflow-x:clip}
-.st-key-scout_nav [role="radiogroup"]{
- overflow-x:auto!important;overscroll-behavior-x:contain;
- -webkit-overflow-scrolling:touch;touch-action:pan-x;
- scroll-behavior:auto!important;
-}
-.st-key-scout_nav label{flex-shrink:0}
 [data-testid="stForm"]{border:0!important;padding:0!important;background:transparent!important}
 
-.st-key-scout_nav [data-testid="stRadio"] label svg{color:#f5f9ff}
 div.stButton>button[kind="primary"]{border:0;border-radius:12px;background:#c8f57d;color:#0b1724;
 font-weight:800;min-height:49px}
 div.stButton>button[kind="primary"]:hover{background:#defca7;color:#0b1724}
@@ -100,12 +105,19 @@ border-top:1px solid #28394d;margin-top:13px;padding-top:13px;color:#a7b8c9;font
  .fl-match .pill strong{font-size:16px}
  .fl-stat{padding:10px 8px}
  .fl-stat .number{font-size:23px}
- .st-key-scout_nav [role="radiogroup"]{max-width:100%;scrollbar-width:none}
- .st-key-scout_nav [role="radiogroup"]::-webkit-scrollbar{display:none}
+ /* Streamlit stacks columns vertically on phones by default; keep the nav tiles in a fixed 3x2 grid. */
+ .st-key-nav_grid [data-testid="stHorizontalBlock"]{
+   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+   gap:7px!important;flex-wrap:nowrap!important;
+ }
+ .st-key-nav_grid [data-testid="column"]{
+   display:block!important;width:100%!important;min-width:0!important;
+   flex:unset!important;padding:0!important;
+ }
+ .st-key-nav_grid div.stButton>button{min-height:80px!important;font-size:11.6px!important;padding:10px 2px!important}
  .fl-grid{gap:7px}
  .fl-stat .label{font-size:10px}
 
- div[data-testid="stRadio"] label{padding:8px 9px}
 }
 </style>
 """
@@ -115,7 +127,6 @@ def _safe(value):
 
 def apply_style():
     extra=navigation_css()+f"""
-    .st-key-scout_nav [data-testid="stRadio"] [role="radiogroup"] > label{{min-height:44px}}
     div[data-testid="stExpander"] details summary::before{{content:"";display:inline-block;width:18px;height:18px;background:#f6fbff;margin-right:7px;-webkit-mask:{css_mask('settings')} center / contain no-repeat;mask:{css_mask('settings')} center / contain no-repeat}}
     """
     st.markdown(CSS.replace("</style>",extra+"</style>"),unsafe_allow_html=True)
@@ -212,7 +223,24 @@ def _interactive_dashboard():
     """
     now=datetime.now(SA_TIME)
     st.markdown(f"**{now.strftime('%A %d %B %Y')}** &nbsp; · &nbsp; South Africa time")
-    st.radio("Navigate",PAGES,horizontal=True,key="scout_nav",label_visibility="collapsed")
+    # Streamlit buttons avoid the unwanted "Navigate" label, native circles,
+    # and horizontal overflow from the previous styled radio widget.
+    if st.session_state.get("scout_nav") not in PAGES:
+        st.session_state.scout_nav=PAGES[0]
+    tiles=(
+        ("brief",PAGES[0]),("strong",PAGES[1]),("upset",PAGES[2]),
+        ("matches",PAGES[3]),("tracker",PAGES[4]),("research",PAGES[5]))
+    with st.container(key="nav_grid"):
+        for row_start in (0,3):
+            columns=st.columns(3,gap="small")
+            for i,column in enumerate(columns):
+                key,label=tiles[row_start+i]
+                with column:
+                    selected=st.session_state.scout_nav==label
+                    if st.button(label,key=f"nav_{key}",
+                            type="primary" if selected else "secondary",
+                            use_container_width=True):
+                        st.session_state.scout_nav=label
     page=st.session_state.scout_nav
     if page==PAGES[5]:
         from research_ui import render as research_render
