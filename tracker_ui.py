@@ -96,7 +96,7 @@ def render(token=None):
             cloud_archive.clear()
             st.success(f"Checked {checked} leagues against finished fixtures. Stored results were refreshed where a final score was available.")
             if errors:st.warning(f"Could not update {len(errors)} league(s); try again later.")
-            st.rerun()
+            st.rerun(scope="fragment")
     if not rows:
         st.info("No archived predictions yet. Open **Brief**, tap **Build / refresh weekly brief**, and the model will record upcoming matches before kickoff. Return to this tab after fixtures finish.")
         return
