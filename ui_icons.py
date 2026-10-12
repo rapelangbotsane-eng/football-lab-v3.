@@ -29,14 +29,22 @@ def css_mask(name):
     return "url('data:image/svg+xml,"+quote(plain,safe="")+"')"
 
 def navigation_css():
-    icons=("brief","star","zap","calendar","tracker","research")
+    """Each tile is a real Streamlit button with a CSS-masked white icon.
+
+    Unlike styling st.radio internals, this never exposes native radio circles
+    or an unwanted widget title as a fake navigation tile.
+    """
+    icons=(("brief","brief"),("strong","star"),("upset","zap"),
+           ("matches","calendar"),("tracker","tracker"),("research","research"))
     style=[]
-    for index,name in enumerate(icons,1):
+    for key,name in icons:
         mask=css_mask(name)
-        style.append(f'''
-        .st-key-scout_nav [data-testid="stRadio"] [role="radiogroup"] > label:nth-child({index})::before {{
-          content:"";width:18px;height:18px;flex:0 0 18px;display:inline-block;
-          background:#f5f9ff;-webkit-mask:{mask} center / contain no-repeat;
+        style.append(f"""
+        .st-key-nav_{key} button::before {{
+          content:"";display:block!important;width:22px;height:22px;
+          flex:0 0 22px;background:#f5f9ff!important;
+          -webkit-mask:{mask} center / contain no-repeat;
           mask:{mask} center / contain no-repeat;
-        }}''')
+        }}
+        """)
     return "".join(style)
