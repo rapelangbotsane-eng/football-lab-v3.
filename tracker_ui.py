@@ -59,12 +59,17 @@ def _table(rows):
 def render(token=None):
     st.subheader("Prediction Tracker")
     st.write("Proof over promises. Every saved estimate is time-stamped **before kickoff**, then compared with the real final score. Rebuilding the weekly brief never rewrites earlier probabilities.")
-    local=load_local()
+    try:
+        local=load_local()
+    except (OSError,RuntimeError) as storage_error:
+        local=[]
+        st.warning("Temporary local storage is unavailable. Displaying cloud history if available.")
     remote,error=cloud_archive()
     rows=merge_archives(local,remote)
     if remote:
         # Protect the earliest original forecast while caching published cloud results.
-        save_archive_local(remote)
+        try:save_archive_local(remote)
+        except (OSError,RuntimeError):pass
     if error:st.caption("Cloud archive temporarily unavailable. Local forecast history, if any, is still accessible.")
     now=datetime.now(SA_TIME)
     st.caption(f"Last opened {now:%d %b %Y at %H:%M} SAST · Local recorded: {len(local)} · Cloud recorded: {len(remote)}")
@@ -84,7 +89,9 @@ def render(token=None):
                     checked+=1;new_results+=count+new_cloud
                 except Exception as exc:
                     errors[code]=type(exc).__name__
-            save_archive_local(rows)
+            try:save_archive_local(rows)
+            except (OSError,RuntimeError):
+                st.warning("Could not save this result check to temporary storage. Download a backup and enable GitHub archival.")
             cloud_archive.clear()
             st.success(f"Checked {checked} leagues against finished fixtures. Stored results were refreshed where a final score was available.")
             if errors:st.warning(f"Could not update {len(errors)} league(s); try again later.")
