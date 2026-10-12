@@ -163,6 +163,29 @@ def merge_archives(primary,others):
             chosen[key]=dict(old,result=row["result"])
     return sorted(chosen.values(),key=lambda r:r["kickoff"],reverse=True)
 
+def save_archive_local(rows,path=DB_PATH):
+    """Merge trusted cloud/synced rows without rewriting original probability vectors."""
+    existing=load_local(path)
+    merged=merge_archives(existing,rows)
+    original={r["key"]:r for r in existing}
+    count=0
+    with _connect(path) as con:
+        for r in merged:
+            old=original.get(r["key"])
+            if old==r:continue
+            # If the record already exists, only its final-score settlement may change.
+            if old and old.get("result") is not None:
+                continue
+            if old and r.get("probabilities")!=old.get("probabilities"):
+                continue
+            payload=json.dumps(r,separators=(",",":"))
+            con.execute("""INSERT INTO predictions (key,archived_at,kickoff,json)
+                VALUES (?,?,?,?) ON CONFLICT(key) DO UPDATE SET json=excluded.json
+                """,(r["key"],r["archived_at"],r["kickoff"],payload))
+            count+=1
+        con.commit()
+    return count
+
 def tracking_summary(rows):
     graded=[r for r in rows if r.get("result") is not None]
     all_count=len(rows)
