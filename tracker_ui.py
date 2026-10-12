@@ -7,7 +7,7 @@ from live_data import LEAGUES
 from club_ui import live_matches
 from prediction_tracker import (
     load_local,reconcile_local,merge_archives,tracking_summary,
-    weekly_stats,monthly_stats,to_csv,settle_with_feed,
+    weekly_stats,monthly_stats,to_csv,settle_with_feed,save_archive_local,
 )
 from tracker_cloud import fetch_cloud_archive
 from weekly_scout import SA_TIME
@@ -61,6 +61,9 @@ def render(token=None):
     local=load_local()
     remote,error=cloud_archive()
     rows=merge_archives(local,remote)
+    if remote:
+        # Protect the earliest original forecast while caching published cloud results.
+        save_archive_local(remote)
     if error:st.caption("Cloud archive temporarily unavailable. Local forecast history, if any, is still accessible.")
     now=datetime.now(SA_TIME)
     st.caption(f"Last opened {now:%d %b %Y at %H:%M} SAST · Local recorded: {len(local)} · Cloud recorded: {len(remote)}")
@@ -80,8 +83,9 @@ def render(token=None):
                     checked+=1;new_results+=count+new_cloud
                 except Exception as exc:
                     errors[code]=type(exc).__name__
+            save_archive_local(rows)
             cloud_archive.clear()
-            st.success(f"Checked {checked} leagues against finished fixtures. Local and displayed records updated.")
+            st.success(f"Checked {checked} leagues against finished fixtures. Stored results were refreshed where a final score was available.")
             if errors:st.warning(f"Could not update {len(errors)} league(s); try again later.")
             st.rerun()
     if not rows:
