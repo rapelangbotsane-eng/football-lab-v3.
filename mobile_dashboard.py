@@ -214,6 +214,9 @@ def _scan(selected,days,token):
     return dict(cards=sorted(all_cards,key=lambda x:x["datetime"]),errors=errors,
                 coverage=coverage,leagues=list(selected),days=days,scanned_at=now.isoformat())
 
+def _activate_page(label):
+    st.session_state.scout_nav=label
+
 @st.fragment
 def _interactive_dashboard():
     """Keep mobile navigation and filters inside a partial Streamlit rerun.
@@ -237,10 +240,10 @@ def _interactive_dashboard():
                 key,label=tiles[row_start+i]
                 with column:
                     selected=st.session_state.scout_nav==label
-                    if st.button(label,key=f"nav_{key}",
-                            type="primary" if selected else "secondary",
-                            use_container_width=True):
-                        st.session_state.scout_nav=label
+                    st.button(label,key=f"nav_{key}",
+                        type="primary" if selected else "secondary",
+                        use_container_width=True,
+                        on_click=_activate_page,args=(label,))
     page=st.session_state.scout_nav
     if page==PAGES[5]:
         from research_ui import render as research_render
