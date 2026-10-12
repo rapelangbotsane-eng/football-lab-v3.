@@ -5,6 +5,7 @@ import io
 import time
 import pandas as pd
 import streamlit as st
+import sqlite3
 from club_ui import club_model,live_matches,CLUB_MODEL_VERSION
 from live_data import LEAGUES, FootballDataError
 from club_data import HistoricalDataError
@@ -164,7 +165,7 @@ def _scan(selected,days,token):
                 counts["archived_new"]=archived["new"]
                 # The same API response grades older, completed fixtures.
                 counts["graded_new"]=reconcile_local(code,snapshot["matches"],as_of=datetime.now(timezone.utc))
-            except (OSError,RuntimeError,ValueError) as tracker_error:
+            except (OSError,RuntimeError,ValueError,sqlite3.Error) as tracker_error:
                 # Tracking must never erase a valid football prediction.
                 counts["tracker_warning"]=type(tracker_error).__name__
         except (FootballDataError,HistoricalDataError,ValueError,TypeError,KeyError,RuntimeError) as exc:
