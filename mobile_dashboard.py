@@ -275,7 +275,12 @@ def _interactive_dashboard():
         for r in cards[:5]:_card(r,details=False)
     elif page==PAGES[1]:
         _section("60%+ picks","The highest estimated 1/X/2 outcome per fixture. Percentages are model estimates, not guarantees.")
-        threshold=st.slider("Minimum model probability",60,85,60,5,format="%d%%")
+        # Select rather than drag: iPhone's continuous slider updates can
+        # repeatedly rerun the results list and cause visible scroll jumps.
+        threshold=st.selectbox("Minimum model probability",
+            (60,65,70,75,80,85),
+            format_func=lambda n:f"{n}%",
+            key="mobile_pick_threshold")
         filtered=strong_predictions(cards,threshold/100)
         st.caption(f"{len(filtered)} of {len(cards)} forecast match(es) meet the threshold.")
         if not filtered:_empty("No predictions reach your selected threshold for these dates. Avoid forcing a pick.")
