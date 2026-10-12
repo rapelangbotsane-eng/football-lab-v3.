@@ -9,8 +9,10 @@ from club_ui import club_model,live_matches,CLUB_MODEL_VERSION
 from live_data import LEAGUES, FootballDataError
 from club_data import HistoricalDataError
 from weekly_scout import forecast_week,strong_predictions,upset_predictions,SA_TIME
+from prediction_tracker import archive_local,reconcile_local
+from ui_icons import svg,navigation_css,css_mask
 
-PAGES=("🏠 Brief","⭐ 60%+ picks","⚡ Upset watch","📅 Matches","🔬 Research")
+PAGES=("Brief","60%+ picks","Upset watch","Matches","Tracker","Research")
 DEFAULT_LEAGUES=list(LEAGUES)[:5]
 CSS="""
 <style>
@@ -25,11 +27,12 @@ h2{font-size:1.46rem!important}h3{font-size:1.2rem!important}
 [data-testid="stMetricValue"]{font-size:1.85rem!important;color:#edf7fe}
 div[data-testid="stRadio"]>div{display:flex;flex-wrap:nowrap!important;overflow-x:auto;gap:.30rem;
 padding:5px 0 10px;scrollbar-width:none}
-div[data-testid="stRadio"] label{white-space:nowrap;border:1px solid #253752;background:#111d30;
+div[data-testid="stRadio"] label{white-space:nowrap;border:1px solid #253752;background:#111d30;display:inline-flex;align-items:center;gap:7px;
 padding:9px 12px;border-radius:12px;min-height:42px}
 div[data-testid="stRadio"] label:has(input:checked){border-color:#c8f57d;background:#23332a}
 div[data-testid="stRadio"] label p{font-size:.83rem;font-weight:650}
-div[data-testid="stRadio"] label>div:first-child{display:none}
+div[data-testid="stRadio"] label>div:first-child{display:none!important}
+.st-key-scout_nav [data-testid="stRadio"] label svg{color:#f5f9ff}
 div.stButton>button[kind="primary"]{border:0;border-radius:12px;background:#c8f57d;color:#0b1724;
 font-weight:800;min-height:49px}
 div.stButton>button[kind="primary"]:hover{background:#defca7;color:#0b1724}
@@ -62,6 +65,7 @@ margin:12px 0 14px;color:#f4f8ff;overflow-wrap:anywhere}
 .fl-match .footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:9px;
 border-top:1px solid #28394d;margin-top:13px;padding-top:13px;color:#a7b8c9;font-size:12px}
 .fl-upset{color:#ffdc96;font-weight:800}
+.fl-upset svg,.fl-ok svg{vertical-align:-3px;margin-right:5px}
 .fl-ok{color:#c8f57d;font-weight:800}
 .fl-section{font-size:19px;font-weight:800;letter-spacing:-.025em;margin:19px 0 3px;color:#f5f9ff}
 .fl-kicker{color:#a6b8cb;font-size:13px;margin:0 0 14px}
@@ -83,15 +87,19 @@ def _safe(value):
     return escape(str(value or ""),quote=True)
 
 def apply_style():
-    st.markdown(CSS,unsafe_allow_html=True)
+    extra=navigation_css()+f"""
+    .st-key-scout_nav [data-testid="stRadio"] [role="radiogroup"] > label{{min-height:44px}}
+    div[data-testid="stExpander"] details summary::before{{content:"";display:inline-block;width:18px;height:18px;background:#f6fbff;margin-right:7px;-webkit-mask:{css_mask('settings')} center / contain no-repeat;mask:{css_mask('settings')} center / contain no-repeat}}
+    """
+    st.markdown(CSS.replace("</style>",extra+"</style>"),unsafe_allow_html=True)
 
 def _secrets_token():
     try:return st.secrets.get("FOOTBALL_DATA_API_TOKEN","")
     except (FileNotFoundError,KeyError,AttributeError):return ""
 
 def _header():
-    st.markdown("""<section class="fl-hero">
-      <div class="fl-eyebrow">⚽ FOOTBALL LAB <span style="color:#9cacb6">/ V3.3 SCOUT</span></div>
+    st.markdown(f"""<section class="fl-hero">
+      <div class="fl-eyebrow" style="display:flex;gap:9px;align-items:center">{svg('football',19)} FOOTBALL LAB <span style="color:#9cacb6">/ V3.4 SCOUT</span></div>
       <h1>Your football,<br>already analysed.</h1>
       <p>The week's strongest model estimates and potential upset signals, ranked for you. Research-backed probabilities, never guaranteed results.</p>
     </section>""",unsafe_allow_html=True)
@@ -106,9 +114,9 @@ def _card(r,show_upset=False,details=False):
         active=" active" if code==winner else ""
         pair.append(f'<div class="pill{active}"><strong>{p[code]*100:.1f}%</strong><span>{label}</span></div>')
     if show_upset:
-        footer=f'<span class="fl-upset">⚡ Research-only: {_safe(r["underdog_team"])} · ML {r["upset_chance"]:.1%} (+{r["upset_uplift"]*100:.1f} pp vs Elo)</span>'
+        footer=f'<span class="fl-upset">{svg("zap",16)} Research-only: {_safe(r["underdog_team"])} · ML {r["upset_chance"]:.1%} (+{r["upset_uplift"]*100:.1f} pp vs Elo)</span>'
     else:
-        footer=f'<span class="fl-ok">★ Top outcome: {_safe(r["pick_label"])} · {r["probability"]:.1%}</span>'
+        footer=f'<span class="fl-ok">{svg("star",16)} Top outcome: {_safe(r["pick_label"])} · {r["probability"]:.1%}</span>'
     st.markdown(f"""<article class="fl-match">
       <div class="meta">{_safe(r["league"])} &nbsp;·&nbsp; {_safe(r["local_time"])}</div>
       <div class="teams">{_safe(r["home"])} <span class="vs">VS</span> {_safe(r["away"])}</div>
@@ -149,6 +157,12 @@ def _scan(selected,days,token):
             cards,counts=forecast_week(records,trained,snapshot,league,now=now,horizon_days=days)
             coverage[league]=counts
             all_cards.extend(cards)
+            # An immutable pre-kickoff snapshot is saved on every successful scan.
+            # Re-running a scan never overwrites the original forecast.
+            archived=archive_local(cards,code,now=datetime.now(timezone.utc))
+            counts["archived_new"]=archived["new"]
+            # The same API response grades any older completed fixtures.
+            counts["graded_new"]=reconcile_local(code,snapshot["matches"],as_of=datetime.now(timezone.utc))
         except (FootballDataError,HistoricalDataError,ValueError,TypeError,KeyError,RuntimeError) as exc:
             errors[league]=str(exc)
         except Exception as exc:
@@ -164,20 +178,24 @@ def render_home():
     st.markdown(f"**{now.strftime('%A %d %B %Y')}** &nbsp; · &nbsp; South Africa time")
     st.radio("Navigate",PAGES,horizontal=True,key="scout_nav",label_visibility="collapsed")
     page=st.session_state.scout_nav
-    if page==PAGES[4]:
+    if page==PAGES[5]:
         from research_ui import render as research_render
         research_render()
+        return
+    if page==PAGES[4]:
+        from tracker_ui import render as tracker_render
+        tracker_render(token=_secrets_token())
         return
     token=_secrets_token()
     if not token:
         st.error("The match-data token is missing. Add FOOTBALL_DATA_API_TOKEN in Streamlit → Manage app → Settings → Secrets. Never put the token in public GitHub.")
         return
-    with st.expander("⚙️ Weekly scan settings",expanded="scout_snapshot" not in st.session_state):
+    with st.expander("Weekly scan settings",expanded="scout_snapshot" not in st.session_state):
         selected=st.multiselect("Leagues to analyse",list(LEAGUES),
             default=DEFAULT_LEAGUES,key="scout_leagues")
         days=st.selectbox("Upcoming window",options=(7,14),format_func=lambda n:f"Next {n} days",key="scout_days")
         st.caption("Five major leagues are selected by default. Free feeds have rate limits, so the first scan can take a few minutes. Nothing is fetched until you tap the scan button.")
-    if st.button("⚡ Build / refresh weekly brief",type="primary",use_container_width=True,disabled=not bool(selected)):
+    if st.button("Build / refresh weekly brief",type="primary",use_container_width=True,disabled=not bool(selected)):
         st.session_state.scout_snapshot=_scan(selected,days,token)
         st.session_state.scout_refreshed=True
     snapshot=st.session_state.get("scout_snapshot")
@@ -191,7 +209,7 @@ def render_home():
     scanned=datetime.fromisoformat(snapshot["scanned_at"]).astimezone(SA_TIME)
     st.caption(f"Last scanned {scanned:%d %b at %H:%M SAST} · {snapshot['days']}-day window · {len(snapshot['leagues'])} selected leagues. Tap refresh for newer results.")
     if snapshot["errors"]:
-        with st.expander(f"⚠️ {len(snapshot['errors'])} competition(s) could not be analysed"):
+        with st.expander(f"{len(snapshot['errors'])} competition(s) could not be analysed"):
             for k,v in snapshot["errors"].items():st.warning(f"{k}: {v}")
     not_covered=sum(sum(int(n.get(k,0)) for k in ("unmapped","insufficient","failed")) for n in snapshot["coverage"].values())
     if not_covered:st.caption(f"{not_covered} upcoming match(es) were not forecast because names/data were missing or predictions failed; excluded, not guessed.")
@@ -229,12 +247,12 @@ def render_home():
     elif page==PAGES[3]:
         _section("Upcoming matches","All mapped fixtures, ordered by kickoff. Tap Analysis for details.")
         for r in cards:_card(r,details=True)
-    if page!=PAGES[4]:
+    if page!=PAGES[5]:
         st.divider()
         st.caption("Data: football-data.org fixtures plus football-data.co.uk historic results. Main forecasts use Elo or results/form ML chosen by older validation; current xG, injury news and lineups are not included. Probabilities are research estimates, not financial advice. Odds and value are not assessed.")
         rows=[dict(league=r["league"],kickoff_sast=r["local_time"],home=r["home"],away=r["away"],
             home_win=r["probabilities"]["1"],draw=r["probabilities"]["X"],away_win=r["probabilities"]["2"],
             main_pick=r["pick"],main_probability=r["probability"],strong_60=r["probability"]>=.60,
             upset_research_alert=r["upset_alert"],ml_underdog_uplift=r["upset_uplift"],engine=r["engine"]) for r in cards]
-        st.download_button("↓ Download this week's analysis (CSV)",pd.DataFrame(rows).to_csv(index=False),
+        st.download_button("Download this week's analysis (CSV)",pd.DataFrame(rows).to_csv(index=False),
             file_name=f"football_lab_weekly_{scanned:%Y%m%d}.csv",mime="text/csv",use_container_width=True)
