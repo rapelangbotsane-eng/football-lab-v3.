@@ -22,6 +22,17 @@ class IosNavigationTests(unittest.TestCase):
         self.assertIn("overscroll-behavior-x:none",code)
         self.assertIn("overflow-x:clip",code)
         self.assertIn("navigation_css()",code)
+    def test_six_tile_navigation_without_radio_circles(self):
+        code=(ROOT/"mobile_dashboard.py").read_text(encoding="utf-8")
+        self.assertIn('with st.container(key="nav_grid")',code)
+        self.assertIn('for row_start in (0,3):',code)
+        self.assertIn('columns=st.columns(3,gap="small")',code)
+        self.assertIn('st.button(label,key=f"nav_{key}"',code)
+        self.assertIn('on_click=_activate_page,args=(label,)',code)
+        self.assertNotIn('st.radio("Navigate"',code)
+        self.assertIn('grid-template-columns:repeat(3,minmax(0,1fr))',code)
+        self.assertIn('button[kind="primary"]',code)
+
     def test_tracker_refreshes_fragment_only(self):
         code=(ROOT/"tracker_ui.py").read_text(encoding="utf-8")
         self.assertIn('st.rerun(scope="fragment")',code)
