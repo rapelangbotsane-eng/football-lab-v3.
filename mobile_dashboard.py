@@ -26,25 +26,32 @@ h2{font-size:1.46rem!important}h3{font-size:1.2rem!important}
 [data-testid="stMetric"]{background:#121e32;border:1px solid #26364d;border-radius:16px;padding:13px!important}
 [data-testid="stMetricLabel"]{color:#9baec4}
 [data-testid="stMetricValue"]{font-size:1.85rem!important;color:#edf7fe}
-/* Compact navigation: six real buttons, three columns and two rows. */
-.st-key-nav_grid [data-testid="stVerticalBlock"]{gap:.48rem}
-.st-key-nav_grid [data-testid="stHorizontalBlock"]{gap:8px}
-.st-key-nav_grid [data-testid="column"]{min-width:0}
-.st-key-nav_grid div.stButton>button{
+/* These tabs switch entirely in the phone browser; no server round-trip on tap. */
+.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) {
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-rows:minmax(78px,auto)!important;gap:8px!important;
+ width:100%!important;max-width:100%!important;
+ overflow:visible!important;margin:4px 0 14px!important;padding:0!important;
+ scroll-behavior:auto!important;
+}
+.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button {
  display:flex!important;flex-direction:column!important;align-items:center!important;
- justify-content:center!important;text-align:center!important;gap:7px!important;
- width:100%!important;min-width:0!important;min-height:82px!important;
- margin:0!important;padding:11px 3px!important;border-radius:14px!important;
- background:#111d30!important;border:1px solid #30425b!important;
- color:#f3f7fc!important;font-size:12.5px!important;font-weight:700!important;
- line-height:1.15!important;white-space:normal!important;
- box-shadow:none!important;transition:background-color .15s ease,border-color .15s ease;
+ justify-content:center!important;gap:7px!important;
+ width:100%!important;min-width:0!important;min-height:78px!important;
+ margin:0!important;padding:10px 4px!important;
+ border:1px solid #30425b!important;border-radius:14px!important;
+ background:#111d30!important;color:#f5f9ff!important;
+ font-size:12.5px!important;font-weight:700!important;line-height:1.2!important;
+ white-space:normal!important;box-shadow:none!important;
+ transition:background .12s ease,border-color .12s ease;
 }
-.st-key-nav_grid div.stButton>button[kind="primary"]{
- background:#23352b!important;border-color:#c8f57d!important;color:#f3f7fc!important;
+.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button[aria-selected="true"] {
+ background:#23352b!important;border-color:#c8f57d!important;color:#f5f9ff!important;
 }
-.st-key-nav_grid div.stButton>button:hover,
-.st-key-nav_grid div.stButton>button:focus-visible{border-color:#c8f57d!important}
+.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button:hover{
+ border-color:#c8f57d!important;
+}
+.st-key-nav_grid [data-baseweb="tab-highlight"],.st-key-nav_grid [data-baseweb="tab-border"]{display:none!important}
 html,body,#root,[data-testid="stApp"],[data-testid="stAppViewContainer"]{
  max-width:100%;overflow-x:clip!important;overscroll-behavior-x:none!important;
  scroll-behavior:auto!important;
@@ -105,16 +112,8 @@ border-top:1px solid #28394d;margin-top:13px;padding-top:13px;color:#a7b8c9;font
  .fl-match .pill strong{font-size:16px}
  .fl-stat{padding:10px 8px}
  .fl-stat .number{font-size:23px}
- /* Streamlit stacks columns vertically on phones by default; keep the nav tiles in a fixed 3x2 grid. */
- .st-key-nav_grid [data-testid="stHorizontalBlock"]{
-   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
-   gap:7px!important;flex-wrap:nowrap!important;
- }
- .st-key-nav_grid [data-testid="column"]{
-   display:block!important;width:100%!important;min-width:0!important;
-   flex:unset!important;padding:0!important;
- }
- .st-key-nav_grid div.stButton>button{min-height:80px!important;font-size:11.6px!important;padding:10px 2px!important}
+ .st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]){gap:7px!important;grid-auto-rows:minmax(76px,auto)!important}
+ .st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button{font-size:11.5px!important;padding:9px 2px!important;min-height:76px!important}
  .fl-grid{gap:7px}
  .fl-stat .label{font-size:10px}
 
@@ -214,68 +213,33 @@ def _scan(selected,days,token):
     return dict(cards=sorted(all_cards,key=lambda x:x["datetime"]),errors=errors,
                 coverage=coverage,leagues=list(selected),days=days,scanned_at=now.isoformat())
 
-def _activate_page(label):
-    st.session_state.scout_nav=label
-
-@st.fragment
-def _interactive_dashboard():
-    """Keep mobile navigation and filters inside a partial Streamlit rerun.
-
-    Without a fragment, touching a tab or slider causes a FULL app rerun and
-    iOS may jump back to the top of the page while the DOM is replaced.
-    """
-    now=datetime.now(SA_TIME)
-    st.markdown(f"**{now.strftime('%A %d %B %Y')}** &nbsp; · &nbsp; South Africa time")
-    # Streamlit buttons avoid the unwanted "Navigate" label, native circles,
-    # and horizontal overflow from the previous styled radio widget.
-    if st.session_state.get("scout_nav") not in PAGES:
-        st.session_state.scout_nav=PAGES[0]
-    tiles=(
-        ("brief",PAGES[0]),("strong",PAGES[1]),("upset",PAGES[2]),
-        ("matches",PAGES[3]),("tracker",PAGES[4]),("research",PAGES[5]))
-    with st.container(key="nav_grid"):
-        for row_start in (0,3):
-            columns=st.columns(3,gap="small")
-            for i,column in enumerate(columns):
-                key,label=tiles[row_start+i]
-                with column:
-                    selected=st.session_state.scout_nav==label
-                    st.button(label,key=f"nav_{key}",
-                        type="primary" if selected else "secondary",
-                        use_container_width=True,
-                        on_click=_activate_page,args=(label,))
-    page=st.session_state.scout_nav
-    if page==PAGES[5]:
-        from research_ui import render as research_render
-        research_render()
-        return
-    if page==PAGES[4]:
-        from tracker_ui import render as tracker_render
-        tracker_render(token=_secrets_token())
-        return
-    token=_secrets_token()
+def _render_scout_page(page,token):
     if not token:
         st.error("The match-data token is missing. Add FOOTBALL_DATA_API_TOKEN in Streamlit → Manage app → Settings → Secrets. Never put the token in public GitHub.")
         return
-    # Form prevents each mobile tap/selection from independently rebuilding the
-    # entire forecast list. The user changes filters then submits once.
-    with st.form("weekly_scan_form",clear_on_submit=False):
-        with st.expander("Weekly scan settings",expanded="scout_snapshot" not in st.session_state):
-            selected=st.multiselect("Leagues to analyse",list(LEAGUES),
-                default=DEFAULT_LEAGUES,key="scout_leagues")
-            days=st.selectbox("Upcoming window",options=(7,14),format_func=lambda n:f"Next {n} days",key="scout_days")
-            st.caption("Choose leagues and the date window, then refresh once. Free-source limits mean the first scan can take a few minutes.")
-        scan_clicked=st.form_submit_button("Build / refresh weekly brief",
-            type="primary",use_container_width=True)
-    if scan_clicked:
-        if not selected:
-            st.warning("Choose at least one league before scanning.")
-        else:
-            st.session_state.scout_snapshot=_scan(selected,days,token)
-            st.session_state.scout_refreshed=True
+    if page==PAGES[0]:
+        # Form prevents each mobile tap/selection from independently rebuilding the
+        # entire forecast list. The user changes filters then submits once.
+        with st.form("weekly_scan_form",clear_on_submit=False):
+            with st.expander("Weekly scan settings",expanded="scout_snapshot" not in st.session_state):
+                selected=st.multiselect("Leagues to analyse",list(LEAGUES),
+                    default=DEFAULT_LEAGUES,key="scout_leagues")
+                days=st.selectbox("Upcoming window",options=(7,14),format_func=lambda n:f"Next {n} days",key="scout_days")
+                st.caption("Choose leagues and the date window, then refresh once. Free-source limits mean the first scan can take a few minutes.")
+            scan_clicked=st.form_submit_button("Build / refresh weekly brief",
+                type="primary",use_container_width=True)
+        if scan_clicked:
+            if not selected:
+                st.warning("Choose at least one league before scanning.")
+            else:
+                st.session_state.scout_snapshot=_scan(selected,days,token)
+                st.session_state.scout_refreshed=True
     snapshot=st.session_state.get("scout_snapshot")
     if snapshot is None:
-        _empty("Your weekly shortlist is ready to build. Choose your leagues, then tap ‘Build / refresh weekly brief’ once. Football Lab will check every upcoming match and rank the results for you.")
+        if page==PAGES[0]:
+            _empty("Your weekly shortlist is ready to build. Choose your leagues, then tap ‘Build / refresh weekly brief’ once. Football Lab will check every upcoming match and rank the results for you.")
+        else:
+            _empty("No weekly predictions scanned yet. Open Brief and tap Build / refresh weekly brief to populate this section.")
         st.caption("Free API access and historical team-name matching can restrict coverage. The app never invents predictions for unmapped teams.")
         return
     cards=snapshot["cards"]
@@ -328,7 +292,13 @@ def _interactive_dashboard():
         for r in upsets:_card(r,show_upset=True,details=True)
     elif page==PAGES[3]:
         _section("Upcoming matches","All mapped fixtures, ordered by kickoff. Tap Analysis for details.")
-        for r in cards:_card(r,details=True)
+        max_items=st.session_state.get("scout_match_limit",12)
+        for r in cards[:max_items]:_card(r,details=True)
+        if len(cards)>max_items:
+            st.caption(f"Showing {max_items} of {len(cards)} upcoming matches.")
+            if st.button("Show 12 more matches",key="scout_show_more"):
+                st.session_state.scout_match_limit=max_items+12
+                st.rerun(scope="fragment")
     if page!=PAGES[5]:
         st.divider()
         st.caption("Data: football-data.org fixtures plus football-data.co.uk historic results. Main forecasts use Elo or results/form ML chosen by older validation; current xG, injury news and lineups are not included. Probabilities are research estimates, not financial advice. Odds and value are not assessed.")
@@ -337,7 +307,37 @@ def _interactive_dashboard():
             main_pick=r["pick"],main_probability=r["probability"],strong_60=r["probability"]>=.60,
             upset_research_alert=r["upset_alert"],ml_underdog_uplift=r["upset_uplift"],engine=r["engine"]) for r in cards]
         st.download_button("Download this week's analysis (CSV)",pd.DataFrame(rows).to_csv(index=False),
-            file_name=f"football_lab_weekly_{scanned:%Y%m%d}.csv",mime="text/csv",use_container_width=True)
+            file_name=f"football_lab_weekly_{scanned:%Y%m%d}.csv",mime="text/csv",use_container_width=True,key=f"weekly_csv_{page}"
+
+
+@st.fragment
+def _interactive_dashboard():
+    """Six tab panels are rendered once; iPhone switches tabs client-side.
+
+    Buttons previously caused Python fragment reruns for every tap, and the
+    Tracker/Research panels could block on remote HTTP requests.
+    """
+    now=datetime.now(SA_TIME)
+    st.markdown(f"**{now.strftime('%A %d %B %Y')}** &nbsp; · &nbsp; South Africa time")
+    with st.container(key="nav_grid"):
+        tabs=st.tabs(PAGES)
+        for index,page in enumerate(PAGES):
+            with tabs[index]:
+                if index==4:
+                    from tracker_ui import render as tracker_render
+                    tracker_render(token=_secrets_token())
+                elif index==5:
+                    st.subheader("Research & validation")
+                    st.caption("Optional data experiments and historical backtests, separate from weekly predictions.")
+                    if st.button("Open advanced research tools",key="scout_open_research"):
+                        st.session_state.scout_research_open=True
+                    if st.session_state.get("scout_research_open",False):
+                        from research_ui import render as research_render
+                        research_render()
+                    else:
+                        st.info("Open advanced research tools when needed. Regular navigation stays light and does not fetch historical datasets.")
+                else:
+                    _render_scout_page(page,_secrets_token())
 
 def render_home():
     apply_style()
