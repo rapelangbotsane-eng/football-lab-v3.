@@ -137,7 +137,7 @@ def _secrets_token():
 
 def _header():
     st.markdown(f"""<section class="fl-hero">
-      <div class="fl-eyebrow" style="display:flex;gap:9px;align-items:center">{svg('football',19)} FOOTBALL LAB <span style="color:#9cacb6">/ V3.4 SCOUT</span></div>
+      <div class="fl-eyebrow" style="display:flex;gap:9px;align-items:center">{svg('football',19)} FOOTBALL LAB <span style="color:#9cacb6">/ V3.5 NAV GRID</span></div>
       <h1>Your football,<br>already analysed.</h1>
       <p>The week's strongest model estimates and potential upset signals, ranked for you. Research-backed probabilities, never guaranteed results.</p>
     </section>""",unsafe_allow_html=True)
