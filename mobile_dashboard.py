@@ -88,6 +88,10 @@ border-top:1px solid #28394d;margin-top:13px;padding-top:13px;color:#a7b8c9;font
 .fl-section{font-size:19px;font-weight:800;letter-spacing:-.025em;margin:19px 0 3px;color:#f5f9ff}
 .fl-kicker{color:#a6b8cb;font-size:13px;margin:0 0 14px}
 @media(max-width:640px){
+ /* Hide floating Streamlit toolbar over match cards on iPhone. */
+ [data-testid="stToolbar"]{display:none!important}
+ [data-testid="stHeader"]{height:0!important;min-height:0!important}
+ [data-testid="stDecoration"]{display:none!important}
  [data-testid="stMainBlockContainer"]{padding-left:.77rem;padding-right:.77rem;padding-top:.55rem}
  .fl-hero{padding:21px 18px;border-radius:18px}
  .fl-hero h1{font-size:33px}
