@@ -22,16 +22,26 @@ class IosNavigationTests(unittest.TestCase):
         self.assertIn("overscroll-behavior-x:none",code)
         self.assertIn("overflow-x:clip",code)
         self.assertIn("navigation_css()",code)
-    def test_six_tile_navigation_without_radio_circles(self):
+    def test_client_side_six_tile_navigation_without_server_callbacks(self):
         code=(ROOT/"mobile_dashboard.py").read_text(encoding="utf-8")
         self.assertIn('with st.container(key="nav_grid")',code)
-        self.assertIn('for row_start in (0,3):',code)
-        self.assertIn('columns=st.columns(3,gap="small")',code)
-        self.assertIn('st.button(label,key=f"nav_{key}"',code)
-        self.assertIn('on_click=_activate_page,args=(label,)',code)
+        self.assertIn('tabs=st.tabs(PAGES)',code)
+        self.assertIn('for index,page in enumerate(PAGES):',code)
+        self.assertIn('with tabs[index]:',code)
         self.assertNotIn('st.radio("Navigate"',code)
+        self.assertNotIn('st.button(label,key=f"nav_{key}"',code)
+        self.assertNotIn('on_click=_activate_page',code)
         self.assertIn('grid-template-columns:repeat(3,minmax(0,1fr))',code)
-        self.assertIn('button[kind="primary"]',code)
+        self.assertIn('[aria-selected="true"]',code)
+
+    def test_heavy_sources_only_load_on_explicit_action(self):
+        research=(ROOT/"research_ui.py").read_text(encoding="utf-8")
+        tracker=(ROOT/"tracker_ui.py").read_text(encoding="utf-8")
+        mobile=(ROOT/"mobile_dashboard.py").read_text(encoding="utf-8")
+        self.assertIn('if st.button("Load historical event seasons"',research)
+        self.assertIn('if st.button("Sync cloud archive"',tracker)
+        self.assertIn('if st.button("Open advanced research tools"',mobile)
+        self.assertIn('for r in cards[:max_items]',mobile)
 
     def test_tracker_refreshes_fragment_only(self):
         code=(ROOT/"tracker_ui.py").read_text(encoding="utf-8")
