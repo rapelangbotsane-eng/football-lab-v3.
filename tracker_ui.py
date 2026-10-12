@@ -65,13 +65,22 @@ def render(token=None):
     except (OSError,RuntimeError,sqlite3.Error) as storage_error:
         local=[]
         st.warning("Temporary local storage is unavailable. Displaying cloud history if available.")
-    remote,error=cloud_archive()
+    # No blocking network call on tab entry. A failed/free GitHub fetch used
+    # to stall EVERY navigation tap for up to 12 seconds.
+    remote=st.session_state.get("tracker_remote_rows",[])
+    error=st.session_state.get("tracker_remote_error")
+    if st.button("Sync cloud archive",key="tracker_manual_cloud_sync",use_container_width=True):
+        with st.spinner("Checking archived results in GitHub..."):
+            remote,error=cloud_archive()
+            st.session_state.tracker_remote_rows=remote
+            st.session_state.tracker_remote_error=error
     rows=merge_archives(local,remote)
     if remote:
         # Protect the earliest original forecast while caching published cloud results.
         try:save_archive_local(remote)
         except (OSError,RuntimeError,sqlite3.Error):pass
     if error:st.caption("Cloud archive temporarily unavailable. Local forecast history, if any, is still accessible.")
+    if not remote:st.caption("For your saved GitHub predictions, use Sync cloud archive. The app does not block navigation while waiting on GitHub.")
     now=datetime.now(SA_TIME)
     st.caption(f"Last opened {now:%d %b %Y at %H:%M} SAST · Local recorded: {len(local)} · Cloud recorded: {len(remote)}")
     with st.expander("Tracking history and cloud backup",expanded=False):
