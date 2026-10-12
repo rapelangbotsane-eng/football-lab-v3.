@@ -27,14 +27,14 @@ h2{font-size:1.46rem!important}h3{font-size:1.2rem!important}
 [data-testid="stMetricLabel"]{color:#9baec4}
 [data-testid="stMetricValue"]{font-size:1.85rem!important;color:#edf7fe}
 /* These tabs switch entirely in the phone browser; no server round-trip on tap. */
-.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) {
+.st-key-nav_grid [data-baseweb="tab-list"] {
  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
  grid-auto-rows:minmax(78px,auto)!important;gap:8px!important;
  width:100%!important;max-width:100%!important;
  overflow:visible!important;margin:4px 0 14px!important;padding:0!important;
  scroll-behavior:auto!important;
 }
-.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button {
+.st-key-nav_grid [data-baseweb="tab-list"] > button {
  display:flex!important;flex-direction:column!important;align-items:center!important;
  justify-content:center!important;gap:7px!important;
  width:100%!important;min-width:0!important;min-height:78px!important;
@@ -45,10 +45,10 @@ h2{font-size:1.46rem!important}h3{font-size:1.2rem!important}
  white-space:normal!important;box-shadow:none!important;
  transition:background .12s ease,border-color .12s ease;
 }
-.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button[aria-selected="true"] {
+.st-key-nav_grid [data-baseweb="tab-list"] > button[aria-selected="true"] {
  background:#23352b!important;border-color:#c8f57d!important;color:#f5f9ff!important;
 }
-.st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button:hover{
+.st-key-nav_grid [data-baseweb="tab-list"] > button:hover{
  border-color:#c8f57d!important;
 }
 .st-key-nav_grid [data-baseweb="tab-highlight"],.st-key-nav_grid [data-baseweb="tab-border"]{display:none!important}
@@ -112,8 +112,8 @@ border-top:1px solid #28394d;margin-top:13px;padding-top:13px;color:#a7b8c9;font
  .fl-match .pill strong{font-size:16px}
  .fl-stat{padding:10px 8px}
  .fl-stat .number{font-size:23px}
- .st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]){gap:7px!important;grid-auto-rows:minmax(76px,auto)!important}
- .st-key-nav_grid [data-baseweb="tab-list"]:not([data-baseweb="tab-panel"] [data-baseweb="tab-list"]) > button{font-size:11.5px!important;padding:9px 2px!important;min-height:76px!important}
+ .st-key-nav_grid [data-baseweb="tab-list"]{gap:7px!important;grid-auto-rows:minmax(76px,auto)!important}
+ .st-key-nav_grid [data-baseweb="tab-list"] > button{font-size:11.5px!important;padding:9px 2px!important;min-height:76px!important}
  .fl-grid{gap:7px}
  .fl-stat .label{font-size:10px}
 
@@ -136,7 +136,7 @@ def _secrets_token():
 
 def _header():
     st.markdown(f"""<section class="fl-hero">
-      <div class="fl-eyebrow" style="display:flex;gap:9px;align-items:center">{svg('football',19)} FOOTBALL LAB <span style="color:#9cacb6">/ V3.6 FAST NAV</span></div>
+      <div class="fl-eyebrow" style="display:flex;gap:9px;align-items:center">{svg('football',19)} FOOTBALL LAB <span style="color:#9cacb6">/ V3.7 TILE NAV</span></div>
       <h1>Your football,<br>already analysed.</h1>
       <p>The week's strongest model estimates and potential upset signals, ranked for you. Research-backed probabilities, never guaranteed results.</p>
     </section>""",unsafe_allow_html=True)
@@ -319,10 +319,11 @@ def _interactive_dashboard():
     """
     now=datetime.now(SA_TIME)
     st.markdown(f"**{now.strftime('%A %d %B %Y')}** &nbsp; · &nbsp; South Africa time")
-    with st.container(key="nav_grid"):
-        tabs=st.tabs(PAGES)
-        for index,page in enumerate(PAGES):
-            with tabs[index]:
+    # Put the styling key on the tab widget itself. Keyed containers cannot
+    # reliably scope Streamlit's internal tab strip across frontend versions.
+    tabs=st.tabs(PAGES,key="nav_grid")
+    for index,page in enumerate(PAGES):
+        with tabs[index]:
                 if index==4:
                     from tracker_ui import render as tracker_render
                     tracker_render(token=_secrets_token())
