@@ -8,6 +8,7 @@ from club_ui import live_matches
 from prediction_tracker import (
     load_local,reconcile_local,merge_archives,tracking_summary,
     weekly_stats,monthly_stats,to_csv,settle_with_feed,save_archive_local,
+    probability_quality,confidence_buckets,
 )
 from tracker_cloud import fetch_cloud_archive
 from weekly_scout import SA_TIME
@@ -92,6 +93,20 @@ def render(token=None):
         st.info("No archived predictions yet. Open **Brief**, tap **Build / refresh weekly brief**, and the model will record upcoming matches before kickoff. Return to this tab after fixtures finish.")
         return
     _summary(rows)
+    quality=probability_quality(rows)
+    st.subheader("Probability quality")
+    x,y=st.columns(2)
+    x.metric("Log loss",f'{quality["log_loss"]:.3f}' if quality["log_loss"] is not None else "—",
+             help="Lower is better. Penalises confidently incorrect estimates.")
+    y.metric("Brier score",f'{quality["brier"]:.3f}' if quality["brier"] is not None else "—",
+             help="Lower is better. Measures probability accuracy across home, draw and away.")
+    st.caption(f'{quality["samples"]} completed forecasts scored. These are genuine saved pre-match probabilities, not refitted after the result.')
+    with st.expander("Does 60% really mean 60%?"):
+        st.write("When enough forecasts finish, compare predicted probability with how often picks actually won. This is a calibration check, not a promise.")
+        if quality["samples"]<25:
+            st.info("At least 25 completed forecasts are needed before displaying a rough calibration comparison.")
+        else:
+            st.dataframe(pd.DataFrame(confidence_buckets(rows)),hide_index=True,use_container_width=True)
     st.subheader("Week-by-week performance")
     week_df=pd.DataFrame(weekly_stats(rows))
     if not week_df.empty:
