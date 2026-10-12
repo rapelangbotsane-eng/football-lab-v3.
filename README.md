@@ -110,3 +110,8 @@ The tracker stores snapshots only before kickoff and grades them only when the e
 ### Visual changes
 
 A consistent monochrome SVG icon set replaces the colourful emoji in navigation, match alerts and hero. The browser icon uses a monochrome Material glyph until the user selects the official logo. The original historical research screens remain available from Research, with text-only secondary tabs.
+
+
+## V3.6 — Faster iPhone navigation
+
+The six white-icon navigation tiles now use browser-side Streamlit tabs with a fixed 3-column × 2-row mobile layout, rather than six buttons that called the server on every tap. This makes switching sections client-side once the dashboard is loaded. The trade-off is a slightly larger initial UI render, so the Matches view starts with 12 cards and lets users request more. The Tracker no longer automatically blocks tab rendering with a GitHub HTTP request: use **Sync cloud archive** inside Tracker when needed. Optional StatsBomb competition discovery starts only after tapping **Load historical event seasons** inside Research, and the full research workbench is opt-in. The normal prediction/accuracy engine and saved tracker records are unchanged. Since tab CSS depends on Streamlit's frontend markup, visual deployment testing on iPhone is still required.
