@@ -31,7 +31,7 @@ def render():
             frame,history,elo,last=fixture_rows(records)
             st.session_state.research=dict(records=records,frame=frame,history=history,elo=elo,last=last,model=joblib.load(MODEL))
         except Exception as exc:st.warning(f"Could not restore previous training: {exc}")
-    tab_data,tab_live,tab_advanced,tab_match,tab_test,tab_about=st.tabs(["📥 Event-data research","⚽ Men\'s club predictions","🔬 Advanced xG experiment","🎯 Historical matchups","📊 Event backtest","ℹ️ About"])
+    tab_data,tab_live,tab_advanced,tab_match,tab_test,tab_about=st.tabs(["Event research","Club predictions","Advanced xG","Matchups","Backtests","About"])
 
     with tab_data:
         st.subheader("Train using real historical match events")
