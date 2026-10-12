@@ -186,6 +186,39 @@ def save_archive_local(rows,path=DB_PATH):
         con.commit()
     return count
 
+def probability_quality(rows):
+    """Proper-scoring rules for saved 1X2 forecasts, not retrospective models."""
+    finished=[r for r in rows if r.get("result") and r.get("probabilities")]
+    losses=[];briers=[]
+    for row in finished:
+        actual=row["result"]["outcome"]
+        if actual not in OUTCOMES:continue
+        try:
+            p=[float(row["probabilities"][k]) for k in OUTCOMES]
+        except (ValueError,TypeError,KeyError):continue
+        if any(not math.isfinite(x) or x<0 or x>1 for x in p):continue
+        index=OUTCOMES.index(actual)
+        losses.append(-math.log(max(1e-12,p[index])))
+        briers.append(sum((p[i]-(1 if i==index else 0))**2 for i in range(3)))
+    return dict(samples=len(losses),
+        log_loss=mean(losses) if losses else None,
+        brier=mean(briers) if briers else None)
+
+def confidence_buckets(rows):
+    """Observed hit rate versus claimed confidence; meaningful after sufficient data."""
+    groups=defaultdict(list)
+    for row in rows:
+        if not row.get("result"):continue
+        p=float(row["pick_probability"])
+        lower=min(90,int(p*10)*10)
+        groups[lower].append(row)
+    output=[]
+    for lower,group in sorted(groups.items()):
+        output.append(dict(range=f"{lower}–{lower+9}%",samples=len(group),
+            average_model_probability=mean(float(r["pick_probability"]) for r in group),
+            observed_win_rate=mean(int(r["result"]["correct"]) for r in group)))
+    return output
+
 def tracking_summary(rows):
     graded=[r for r in rows if r.get("result") is not None]
     all_count=len(rows)
