@@ -90,3 +90,23 @@ Runs within the football-data.org free API constraints. Default scan is five maj
 The responsive color system uses Streamlit's built-in dark theme with custom midnight/lime styling. Add the hosted URL to an iPhone Home Screen in Safari (Share → Add to Home Screen) for an app-like shortcut. No native iOS binary or App Store publication is claimed.
 
 **Data caveat:** the live shortlisted probabilities are still the results-based Elo/form model selected on earlier validation. Understat's xG/PPDA research is not blended into live suggestions until it is verified on genuinely new results. Historical probability estimates are not verified betting odds or financial advice.
+
+
+## V3.4 — Prediction tracker and monochrome interface
+
+The mobile dashboard now has a Tracker tab. Each time Build / refresh weekly brief is pressed, the app records pre-kickoff match forecasts with snapshot time, all three original 1/X/2 probabilities, model version, strong-60% status and separate research-only upset signal. Re-scans NEVER overwrite an earlier saved probability. Finished matches can be checked against football-data.org by exact fixture ID and FINISHED full-time score. The tracker shows week/month accuracy, 60%+ hit rate, upset-alert hit rate, pending games, multiclass log loss, Brier score and emerging confidence calibration. CSV and JSON backups can be downloaded.
+
+**Important limitation:** the local SQLite file on free Streamlit hosting is temporary and not a private account; it can disappear on app resets and may be shared between public app visitors. The optional GitHub Actions cloud archive avoids data loss after that one-time setup. Archive records are public in the GitHub repository, but contain only forecast data, not API credentials.
+
+### Enable permanent automated daily records (one-time setup)
+
+1. In GitHub, open this repository, then Settings → Secrets and variables → Actions → New repository secret.
+2. Create a secret named FOOTBALL_DATA_API_TOKEN and insert the same football-data.org token already saved in Streamlit. NEVER commit this value to the repo or put it in a message.
+3. On the GitHub Actions page, run the workflow named Archive Football Lab predictions once. It will use the GitHub-provided GITHUB_TOKEN to push prediction data to data/tracker_archive.json, subject to Actions permissions.
+4. GitHub Actions then runs daily at 07:00 UTC (09:00 South Africa time) if Actions remain enabled. The read-only Streamlit tracker merges this public archive with local data. Free sources and scheduled task execution are not guaranteed; export an occasional manual backup.
+
+The tracker stores snapshots only before kickoff and grades them only when the exact fixture's full-time score is present. It does not automatically backfill predictions for past matches. It is not a betting-profit tracker, and 60% probability is not a 60% proven success rate.
+
+### Visual changes
+
+A consistent monochrome SVG icon set replaces the colourful emoji in navigation, match alerts and hero. The browser icon uses a monochrome Material glyph until the user selects the official logo. The original historical research screens remain available from Research, with text-only secondary tabs.
