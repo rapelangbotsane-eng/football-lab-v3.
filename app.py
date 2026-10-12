@@ -3,8 +3,8 @@ import streamlit as st
 from mobile_dashboard import render_home
 
 st.set_page_config(
-    page_title="Football Lab · Weekly Scout",
-    page_icon="⚽",
+    page_title="Football Lab · Prediction Tracker",
+    page_icon=":material/analytics:",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
