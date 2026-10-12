@@ -33,6 +33,23 @@ padding:9px 12px;border-radius:12px;min-height:42px}
 div[data-testid="stRadio"] label:has(input:checked){border-color:#c8f57d;background:#23332a}
 div[data-testid="stRadio"] label p{font-size:.83rem;font-weight:650}
 div[data-testid="stRadio"] label>div:first-child{display:none!important}
+html,body,#root,[data-testid="stApp"],[data-testid="stAppViewContainer"]{
+ max-width:100%;overflow-x:clip!important;overscroll-behavior-x:none!important;
+ scroll-behavior:auto!important;
+}
+[data-testid="stMain"]{
+ overscroll-behavior-y:contain;overflow-x:clip!important;
+ -webkit-overflow-scrolling:touch;
+}
+[data-testid="stMainBlockContainer"]{box-sizing:border-box;min-width:0;overflow-x:clip}
+.st-key-scout_nav [role="radiogroup"]{
+ overflow-x:auto!important;overscroll-behavior-x:contain;
+ -webkit-overflow-scrolling:touch;touch-action:pan-x;
+ scroll-behavior:auto!important;
+}
+.st-key-scout_nav label{flex-shrink:0}
+[data-testid="stForm"]{border:0!important;padding:0!important;background:transparent!important}
+
 .st-key-scout_nav [data-testid="stRadio"] label svg{color:#f5f9ff}
 div.stButton>button[kind="primary"]{border:0;border-radius:12px;background:#c8f57d;color:#0b1724;
 font-weight:800;min-height:49px}
@@ -79,6 +96,11 @@ border-top:1px solid #28394d;margin-top:13px;padding-top:13px;color:#a7b8c9;font
  .fl-match .pill strong{font-size:16px}
  .fl-stat{padding:10px 8px}
  .fl-stat .number{font-size:23px}
+ .st-key-scout_nav [role="radiogroup"]{max-width:100%;scrollbar-width:none}
+ .st-key-scout_nav [role="radiogroup"]::-webkit-scrollbar{display:none}
+ .fl-grid{gap:7px}
+ .fl-stat .label{font-size:10px}
+
  div[data-testid="stRadio"] label{padding:8px 9px}
 }
 </style>
@@ -177,8 +199,13 @@ def _scan(selected,days,token):
     return dict(cards=sorted(all_cards,key=lambda x:x["datetime"]),errors=errors,
                 coverage=coverage,leagues=list(selected),days=days,scanned_at=now.isoformat())
 
-def render_home():
-    apply_style();_header()
+@st.fragment
+def _interactive_dashboard():
+    """Keep mobile navigation and filters inside a partial Streamlit rerun.
+
+    Without a fragment, touching a tab or slider causes a FULL app rerun and
+    iOS may jump back to the top of the page while the DOM is replaced.
+    """
     now=datetime.now(SA_TIME)
     st.markdown(f"**{now.strftime('%A %d %B %Y')}** &nbsp; · &nbsp; South Africa time")
     st.radio("Navigate",PAGES,horizontal=True,key="scout_nav",label_visibility="collapsed")
@@ -195,14 +222,22 @@ def render_home():
     if not token:
         st.error("The match-data token is missing. Add FOOTBALL_DATA_API_TOKEN in Streamlit → Manage app → Settings → Secrets. Never put the token in public GitHub.")
         return
-    with st.expander("Weekly scan settings",expanded="scout_snapshot" not in st.session_state):
-        selected=st.multiselect("Leagues to analyse",list(LEAGUES),
-            default=DEFAULT_LEAGUES,key="scout_leagues")
-        days=st.selectbox("Upcoming window",options=(7,14),format_func=lambda n:f"Next {n} days",key="scout_days")
-        st.caption("Five major leagues are selected by default. Free feeds have rate limits, so the first scan can take a few minutes. Nothing is fetched until you tap the scan button.")
-    if st.button("Build / refresh weekly brief",type="primary",use_container_width=True,disabled=not bool(selected)):
-        st.session_state.scout_snapshot=_scan(selected,days,token)
-        st.session_state.scout_refreshed=True
+    # Form prevents each mobile tap/selection from independently rebuilding the
+    # entire forecast list. The user changes filters then submits once.
+    with st.form("weekly_scan_form",clear_on_submit=False):
+        with st.expander("Weekly scan settings",expanded="scout_snapshot" not in st.session_state):
+            selected=st.multiselect("Leagues to analyse",list(LEAGUES),
+                default=DEFAULT_LEAGUES,key="scout_leagues")
+            days=st.selectbox("Upcoming window",options=(7,14),format_func=lambda n:f"Next {n} days",key="scout_days")
+            st.caption("Choose leagues and the date window, then refresh once. Free-source limits mean the first scan can take a few minutes.")
+        scan_clicked=st.form_submit_button("Build / refresh weekly brief",
+            type="primary",use_container_width=True)
+    if scan_clicked:
+        if not selected:
+            st.warning("Choose at least one league before scanning.")
+        else:
+            st.session_state.scout_snapshot=_scan(selected,days,token)
+            st.session_state.scout_refreshed=True
     snapshot=st.session_state.get("scout_snapshot")
     if snapshot is None:
         _empty("Your weekly shortlist is ready to build. Choose your leagues, then tap ‘Build / refresh weekly brief’ once. Football Lab will check every upcoming match and rank the results for you.")
@@ -263,3 +298,8 @@ def render_home():
             upset_research_alert=r["upset_alert"],ml_underdog_uplift=r["upset_uplift"],engine=r["engine"]) for r in cards]
         st.download_button("Download this week's analysis (CSV)",pd.DataFrame(rows).to_csv(index=False),
             file_name=f"football_lab_weekly_{scanned:%Y%m%d}.csv",mime="text/csv",use_container_width=True)
+
+def render_home():
+    apply_style()
+    _header()
+    _interactive_dashboard()
