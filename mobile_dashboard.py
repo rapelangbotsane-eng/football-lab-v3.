@@ -307,7 +307,7 @@ def _render_scout_page(page,token):
             main_pick=r["pick"],main_probability=r["probability"],strong_60=r["probability"]>=.60,
             upset_research_alert=r["upset_alert"],ml_underdog_uplift=r["upset_uplift"],engine=r["engine"]) for r in cards]
         st.download_button("Download this week's analysis (CSV)",pd.DataFrame(rows).to_csv(index=False),
-            file_name=f"football_lab_weekly_{scanned:%Y%m%d}.csv",mime="text/csv",use_container_width=True,key=f"weekly_csv_{page}"
+            file_name=f"football_lab_weekly_{scanned:%Y%m%d}.csv",mime="text/csv",use_container_width=True,key=f"weekly_csv_{page}")
 
 
 @st.fragment
