@@ -159,10 +159,14 @@ def _scan(selected,days,token):
             all_cards.extend(cards)
             # An immutable pre-kickoff snapshot is saved on every successful scan.
             # Re-running a scan never overwrites the original forecast.
-            archived=archive_local(cards,code,now=datetime.now(timezone.utc))
-            counts["archived_new"]=archived["new"]
-            # The same API response grades any older completed fixtures.
-            counts["graded_new"]=reconcile_local(code,snapshot["matches"],as_of=datetime.now(timezone.utc))
+            try:
+                archived=archive_local(cards,code,now=datetime.now(timezone.utc))
+                counts["archived_new"]=archived["new"]
+                # The same API response grades older, completed fixtures.
+                counts["graded_new"]=reconcile_local(code,snapshot["matches"],as_of=datetime.now(timezone.utc))
+            except (OSError,RuntimeError,ValueError) as tracker_error:
+                # Tracking must never erase a valid football prediction.
+                counts["tracker_warning"]=type(tracker_error).__name__
         except (FootballDataError,HistoricalDataError,ValueError,TypeError,KeyError,RuntimeError) as exc:
             errors[league]=str(exc)
         except Exception as exc:
@@ -213,6 +217,8 @@ def render_home():
             for k,v in snapshot["errors"].items():st.warning(f"{k}: {v}")
     not_covered=sum(sum(int(n.get(k,0)) for k in ("unmapped","insufficient","failed")) for n in snapshot["coverage"].values())
     if not_covered:st.caption(f"{not_covered} upcoming match(es) were not forecast because names/data were missing or predictions failed; excluded, not guessed.")
+    tracking_errors=[league for league,info in snapshot["coverage"].items() if info.get("tracker_warning")]
+    if tracking_errors:st.warning(f"Forecasts were generated, but temporary local tracking storage failed in {len(tracking_errors)} league(s). Download your weekly CSV as a backup.")
     if not cards:
         _stats(0,0,0)
         _empty("No usable upcoming matches were found in the selected leagues, or the free API did not return the fixtures. Open scan errors or choose another league and refresh.")
