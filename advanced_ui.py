@@ -15,9 +15,9 @@ def compare_advanced(rows,understat_matches):
 
 def render():
     st.subheader("V3.2 — Test advanced football data")
-    st.write("Research question: do **real match-level xG and pressing/deep-completion metrics** improve historical Premier League predictions over Elo and results-only machine learning?")
+    st.write("Research question: do **compact, recency-weighted xG signals** improve historical Premier League predictions over Elo and a results-only model? We also compare larger xG and pressing feature sets to check for overfitting.")
     st.info("The research feed is provided by Understat via an unofficial, read-only interface. Data availability and permitted use can change. We stop on access errors and never work around restrictions. This is a research experiment, NOT a replacement for the current-fixtures model.")
-    st.caption("All four models train and validate on the same matched games. Pre-match features only use earlier results. The comparison uses 2020/21–2023/24 for training, 2024/25 for validation and 2025/26 for retrospective testing.")
+    st.caption("All candidate models train and validate on the same matched games. Pre-match features only use earlier results. The comparison uses 2020/21–2023/24 for training, 2024/25 for validation and 2025/26 for retrospective testing.")
     st.warning("The 2025/26 season was already examined in Football Lab V3.1. It cannot be treated as a pristine holdout for newly developed xG features. This is diagnostic evidence; the decisive test will be a future prospective season.")
     if st.button("Run free Premier League xG experiment",type="primary",width="stretch"):
         try:
