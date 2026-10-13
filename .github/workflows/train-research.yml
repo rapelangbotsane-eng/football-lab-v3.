@@ -5,6 +5,10 @@ on:
     paths:
       - training_lab.py
       - train_research.py
+      - dynamic_goal_engine.py
+      - advanced_club_experiment.py
+      - tests/test_dynamic_goal_engine.py
+      - tests/test_training_lab.py
       - .github/workflows/train-research.yml
   workflow_dispatch:
 permissions:
@@ -26,7 +30,10 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
       - name: Run offline regression tests
-        run: python -m unittest discover -s tests -p test_training_lab.py -v
+        run: |
+          python -m unittest discover -s tests -p test_training_lab.py -v
+          python -m unittest discover -s tests -p test_dynamic_goal_engine.py -v
+          python -m unittest discover -s tests -p test_advanced_xg.py -v
       - name: Train rolling-season benchmarks on five men's leagues
         run: |
           python train_research.py --league PL --league PD --league BL1 --league SA --league FL1 --advanced
