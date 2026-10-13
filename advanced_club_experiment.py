@@ -5,6 +5,7 @@ The 2025/26 season was already inspected in V3.1, so NOT a pristine holdout.
 """
 from collections import defaultdict
 from itertools import groupby
+from datetime import date
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -34,15 +35,35 @@ def make_rolling_advanced_features(results,matched):
                     # Prior smoothing: no misleading zero-fill when a metric is missing.
                     row[tag+"_"+col]=(sum(nums)+3*PRIOR[col])/(len(nums)+3)
                     row[tag+"_coverage_"+col]=len(nums)
+                # Independently test a smaller, recency-weighted chance-quality
+                # signal rather than many correlated raw metrics.
+                for col in ("xgf","xga","npxgf"):
+                    weighted=[]
+                    for rec in prev:
+                        v=rec.get(col)
+                        if v is None:continue
+                        try:
+                            age=(date.fromisoformat(day)-date.fromisoformat(rec["date"])).days
+                            if age<=0:continue
+                            value=float(v)
+                            if not np.isfinite(value):continue
+                            weighted.append((2.**(-age/180.0),value))
+                        except (ValueError,TypeError,KeyError):continue
+                    effective=sum(weight for weight,value in weighted)
+                    estimate=(sum(weight*value for weight,value in weighted)+
+                        4*PRIOR[col])/(effective+4)
+                    row[tag+"_decay_"+col]=estimate
             for col in ADVANCE:
                 row["xgd_"+col]=row["hx_"+col]-row["ax_"+col]
+            row["xgd_decay_net_xg"]=(row["hx_decay_xgf"]-row["hx_decay_xga"]-
+                row["ax_decay_xgf"]+row["ax_decay_xga"])
             feats[(day,h,a)]=row
         for game in games:
             key=(day,game["home"],game["away"])
             if key not in matched:continue
             m=matched[key]
             for side,club in (("home_metrics",game["home"]),("away_metrics",game["away"])):
-                histories[club].append(m[side])
+                histories[club].append(dict(m[side],date=day))
     return feats
 
 def feature_frame(results,advanced_matches):
@@ -104,6 +125,14 @@ def run_xg_experiment(results,understat_matches,advanced_matched=None):
         "Elo only":None,
         "Results + Elo":base_cols,
         "Results + Elo + xG":base_cols+xg_cols,
+        "Compact decayed xG + Elo":["elo_diff",
+            "hx_decay_xgf","hx_decay_xga",
+            "ax_decay_xgf","ax_decay_xga",
+            "xgd_decay_net_xg"],
+        "Compact decayed non-penalty xG + Elo":["elo_diff",
+            "hx_decay_npxgf","hx_decay_xga",
+            "ax_decay_npxgf","ax_decay_xga",
+            "xgd_decay_net_xg"],
         "Results + Elo + xG + pressing":base_cols+xg_cols+press_cols,
     }
     results_by_model={}
