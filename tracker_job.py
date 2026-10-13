@@ -12,6 +12,7 @@ from club_engine import build_history,train_model
 from live_data import fetch_season_matches,LEAGUES
 from weekly_scout import forecast_week
 from prediction_tracker import snapshot_prediction,settle_with_feed,merge_archives
+from shadow_engine import shadow_forecast_cards
 
 PATH=Path("data/tracker_archive.json")
 DEFAULT_CODES=("PL","PD","BL1","SA","FL1")
@@ -21,7 +22,7 @@ def job_run(token,now=None):
     now=now or datetime.now(timezone.utc)
     if not token:
         print("FOOTBALL_DATA_API_TOKEN GitHub Actions secret not set. Scheduled archival skipped.")
-        return 0
+        return 2
     if PATH.exists():
         try:archive=json.loads(PATH.read_text(encoding="utf-8"))
         except (ValueError,UnicodeError) as error:
@@ -42,6 +43,10 @@ def job_run(token,now=None):
             frame,_=build_history(records)
             trained=train_model(frame)
             cards,_=forecast_week(records,trained,snapshot,LABELS[code],now=now,horizon_days=10)
+            if cards:
+                # Same-time forecasts from three frozen research challengers.
+                # Failure must NOT create partial/pseudo-comparable evidence.
+                cards=shadow_forecast_cards(records,cards,snapshot["matches"])
             recent=[]
             for card in cards:
                 row=snapshot_prediction(card,code,now=now)
