@@ -42,13 +42,22 @@ def snapshot_prediction(card,league_code,now=None):
     snap=card.get("snapshot")
     if snap is not None and utc(snap)>now:
         raise ValueError("Source snapshot is newer than archive time")
+    shadow={}
+    for name,values in (card.get("shadow_models") or {}).items():
+        if name not in ("Fixed Elo","Calibrated Elo","Dynamic goals + Elo"):
+            raise ValueError("Unknown shadow model")
+        vector={k:float(values[k]) for k in OUTCOMES}
+        if (any(not math.isfinite(x) or x<0 or x>1 for x in vector.values())
+                or abs(sum(vector.values())-1)>1e-5):
+            raise ValueError("Invalid shadow probability vector")
+        shadow[name]=vector
     return dict(
         key=fixture_key(league_code,card["id"]),
         fixture_id=str(card["id"]),league_code=str(league_code),league=str(card["league"]),
         home=str(card["home"]),away=str(card["away"]),kickoff=kickoff.isoformat(),
         archived_at=now.isoformat(),source_fetched=snap,
         model_version=str(card.get("model_version") or "v3.3-results"),
-        engine=str(card["engine"]),probabilities=probs,
+        engine=str(card["engine"]),probabilities=probs,shadow_models=shadow,
         pick=code,pick_probability=probs[code],strong_60=probs[code]>=.60,
         upset_alert=bool(card.get("upset_alert",False)),
         upset_side=str(card.get("underdog") or ""),
@@ -218,6 +227,53 @@ def confidence_buckets(rows):
             average_model_probability=mean(float(r["pick_probability"]) for r in group),
             observed_win_rate=mean(int(r["result"]["correct"]) for r in group)))
     return output
+
+def prospective_comparison(rows):
+    """Paired proper scores on SAME settled fixtures with ALL frozen shadow models.
+
+    Old archive entries without shadow snapshots are intentionally excluded.
+    """
+    names=("Primary selected","Fixed Elo","Calibrated Elo","Dynamic goals + Elo")
+    expected=set(names[1:])
+    scored=[]
+    for r in rows:
+        result=r.get("result") or {}
+        shadow=r.get("shadow_models") or {}
+        if result.get("outcome") not in OUTCOMES or not expected.issubset(shadow):
+            continue
+        try:
+            if utc(r["archived_at"])>=utc(r["kickoff"]):continue
+            all_probs={"Primary selected":r["probabilities"],**shadow}
+            vectors={name:[float(all_probs[name][k]) for k in OUTCOMES] for name in names}
+            if any((not all(math.isfinite(x) and x>=0 for x in p)
+                        or abs(sum(p)-1)>1e-5) for p in vectors.values()):continue
+        except (KeyError,ValueError,TypeError):continue
+        scored.append((r,result["outcome"],vectors))
+    detail=[]
+    for name in names:
+        ll=[];brier=[];hit=[];strong_count=0;strong_hits=0;confident=[]
+        for r,outcome,models in scored:
+            p=models[name];true=OUTCOMES.index(outcome);top=max(p)
+            winner=p.index(top)
+            ll.append(-math.log(max(1e-12,p[true])))
+            brier.append(sum((v-(int(i==true)))**2 for i,v in enumerate(p)))
+            correct=int(winner==true);hit.append(correct)
+            if top>=.60:
+                strong_count+=1;strong_hits+=correct
+                confident.append(top)
+        detail.append(dict(model=name,matches=len(scored),
+            log_loss=mean(ll) if ll else None,brier=mean(brier) if brier else None,
+            accuracy=mean(hit) if hit else None,
+            strong_60_count=strong_count,strong_60_accuracy=strong_hits/strong_count if strong_count else None,
+            strong_mean_probability=mean(confident) if confident else None))
+    base=detail[1]["log_loss"]
+    for row in detail:
+        row["log_loss_delta_vs_fixed_elo"]=(row["log_loss"]-base) if base is not None else None
+    return dict(matches=len(scored),models=detail,
+        trustworthy_sample=(len(scored)>=100),
+        notes=("All models were snapshotted before the same kickoff; models are compared on "
+          "exactly the same resolved matches. Fewer than 100 paired matches is preliminary. "
+          "The historical models have not been automatically promoted."))
 
 def tracking_summary(rows):
     graded=[r for r in rows if r.get("result") is not None]
