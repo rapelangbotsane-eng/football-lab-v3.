@@ -20,6 +20,10 @@ jobs:
           python-version: '3.11'
       - name: Install runtime dependencies
         run: python -m pip install -r requirements.txt
+      - name: Validate frozen shadow forecast and tracker integrity
+        run: |
+          python -m unittest discover -s tests -p test_shadow_engine.py -v
+          python -m unittest discover -s tests -p test_prediction_tracker.py -v
       - name: Capture predictions and completed match outcomes
         env:
           FOOTBALL_DATA_API_TOKEN: ${{ secrets.FOOTBALL_DATA_API_TOKEN }}
