@@ -63,7 +63,7 @@ def execute(leagues=("PL",),include_advanced=False):
                 "validation_matches":result["validation_matches"],
                 "retrospective_matches":result["retrospective_matches"],
                 "selected_on_validation":result["selected"],
-                "comparison":result["table"].to_dict(orient="records"),
+                "comparison":json.loads(result["table"].to_json(orient="records")),
                 "note":result["notes"]+"\nLive fixtures continue with the old results-based model.",
             }
             print(f"Advanced EPL xG experiment complete: {result['source_matched']} matched games",flush=True)
