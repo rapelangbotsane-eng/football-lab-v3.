@@ -1,6 +1,7 @@
 {
-  "schema_version": 1,
-  "generated_at": "2026-10-13T11:51:30.825067+00:00",
+  "schema_version": 2,
+  "experiment_revision": "dynamic-goals-compact-xg-2026-10",
+  "generated_at": "2026-10-13T13:23:02.025887+00:00",
   "method": "Rolling-origin historical men's club results",
   "test_seasons": [
     2023,
@@ -18,7 +19,7 @@
           "train_matches": 760,
           "validation_matches": 380,
           "test_matches": 380,
-          "selected_by_validation": "Fixed Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
             "accuracy": 0.573684,
             "log_loss": 0.95011,
@@ -28,6 +29,15 @@
             "accuracy": 0.573684,
             "log_loss": 0.95011,
             "brier": 0.561907
+          },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": 0.0,
+            "ci_95": [
+              0.0,
+              0.0
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
           },
           "selected_60_plus": {
             "matches": 49,
@@ -46,6 +56,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.555263,
                 "log_loss": 0.980561,
@@ -60,6 +71,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.539474,
                 "log_loss": 0.991336,
@@ -74,6 +86,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.528947,
                 "log_loss": 0.994063,
@@ -88,6 +101,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.502632,
                 "log_loss": 1.017414,
@@ -97,6 +111,28 @@
                 "accuracy": 0.552632,
                 "log_loss": 0.964742,
                 "brier": 0.569637
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9805608777431812,
+                "half_life": 120,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.0
+              },
+              "validation": {
+                "accuracy": 0.555263,
+                "log_loss": 0.980561,
+                "brier": 0.584254
+              },
+              "test": {
+                "accuracy": 0.573684,
+                "log_loss": 0.95011,
+                "brier": 0.561907
               }
             }
           ]
@@ -119,6 +155,15 @@
             "log_loss": 0.990255,
             "brier": 0.592068
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": 0.027111,
+            "ci_95": [
+              -0.001965,
+              0.056179
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
             "matches": 152,
             "wins": 95,
@@ -136,6 +181,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.573684,
                 "log_loss": 0.95011,
@@ -150,6 +196,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.568421,
                 "log_loss": 0.933956,
@@ -164,6 +211,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.592105,
                 "log_loss": 0.926996,
@@ -178,6 +226,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.581579,
                 "log_loss": 0.957218,
@@ -187,6 +236,28 @@
                 "accuracy": 0.486842,
                 "log_loss": 1.033404,
                 "brier": 0.619381
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9352897267659929,
+                "half_life": 400,
+                "shrink": 4.0,
+                "rho": 0.0,
+                "temperature": 0.85,
+                "blend": 0.75
+              },
+              "validation": {
+                "accuracy": 0.563158,
+                "log_loss": 0.93529,
+                "brier": 0.551026
+              },
+              "test": {
+                "accuracy": 0.523684,
+                "log_loss": 0.988639,
+                "brier": 0.590029
               }
             }
           ]
@@ -198,34 +269,44 @@
           "train_matches": 1520,
           "validation_matches": 380,
           "test_matches": 380,
-          "selected_by_validation": "Calibrated Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
-            "accuracy": 0.478947,
-            "log_loss": 1.024918,
-            "brier": 0.616745
+            "accuracy": 0.457895,
+            "log_loss": 1.025298,
+            "brier": 0.616139
           },
           "baseline_test": {
             "accuracy": 0.486842,
             "log_loss": 1.021931,
             "brier": 0.613949
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": 0.003367,
+            "ci_95": [
+              -0.010492,
+              0.016841
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
-            "matches": 98,
-            "wins": 63,
-            "hit_rate": 0.64286,
-            "mean_confidence": 0.67438
+            "matches": 69,
+            "wins": 48,
+            "hit_rate": 0.69565,
+            "mean_confidence": 0.65656
           },
           "selected_upset_vs_elo": {
-            "alerts": 0,
-            "captured": 0,
-            "false_alarms": 0,
-            "precision": null,
-            "recall": 0.0
+            "alerts": 22,
+            "captured": 4,
+            "false_alarms": 18,
+            "precision": 0.18181818181818182,
+            "recall": 0.04395604395604396
           },
           "competitors": [
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.534211,
                 "log_loss": 0.990255,
@@ -240,6 +321,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.531579,
                 "log_loss": 0.983407,
@@ -254,6 +336,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.502632,
                 "log_loss": 0.995605,
@@ -268,6 +351,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.510526,
                 "log_loss": 1.007151,
@@ -277,6 +361,28 @@
                 "accuracy": 0.457895,
                 "log_loss": 1.062522,
                 "brier": 0.642655
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9824609598997381,
+                "half_life": 240,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.75
+              },
+              "validation": {
+                "accuracy": 0.531579,
+                "log_loss": 0.982461,
+                "brier": 0.586107
+              },
+              "test": {
+                "accuracy": 0.457895,
+                "log_loss": 1.025298,
+                "brier": 0.616139
               }
             }
           ]
@@ -299,22 +405,31 @@
           "train_matches": 760,
           "validation_matches": 380,
           "test_matches": 380,
-          "selected_by_validation": "Fixed Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
-            "accuracy": 0.536842,
-            "log_loss": 0.980598,
-            "brier": 0.584625
+            "accuracy": 0.539474,
+            "log_loss": 0.978677,
+            "brier": 0.582542
           },
           "baseline_test": {
             "accuracy": 0.536842,
             "log_loss": 0.980598,
             "brier": 0.584625
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.001921,
+            "ci_95": [
+              -0.005927,
+              0.001989
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
-            "matches": 44,
-            "wins": 35,
-            "hit_rate": 0.79545,
-            "mean_confidence": 0.63197
+            "matches": 50,
+            "wins": 38,
+            "hit_rate": 0.76,
+            "mean_confidence": 0.64585
           },
           "selected_upset_vs_elo": {
             "alerts": 0,
@@ -327,6 +442,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.547368,
                 "log_loss": 1.001773,
@@ -341,6 +457,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.55,
                 "log_loss": 1.00715,
@@ -355,6 +472,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.521053,
                 "log_loss": 1.013386,
@@ -369,6 +487,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.6,
+              "settings": null,
               "validation": {
                 "accuracy": 0.489474,
                 "log_loss": 1.037166,
@@ -378,6 +497,28 @@
                 "accuracy": 0.471053,
                 "log_loss": 1.021209,
                 "brier": 0.614389
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 1.000603618416171,
+                "half_life": 400,
+                "shrink": 10.0,
+                "rho": 0.1,
+                "temperature": 0.85,
+                "blend": 0.25
+              },
+              "validation": {
+                "accuracy": 0.55,
+                "log_loss": 1.000604,
+                "brier": 0.596362
+              },
+              "test": {
+                "accuracy": 0.539474,
+                "log_loss": 0.978677,
+                "brier": 0.582542
               }
             }
           ]
@@ -400,6 +541,15 @@
             "log_loss": 0.988929,
             "brier": 0.587852
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.012554,
+            "ci_95": [
+              -0.032716,
+              0.00585
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
             "matches": 132,
             "wins": 88,
@@ -417,6 +567,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.536842,
                 "log_loss": 0.980598,
@@ -431,6 +582,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 0.85,
+              "settings": null,
               "validation": {
                 "accuracy": 0.539474,
                 "log_loss": 0.958781,
@@ -445,6 +597,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.521053,
                 "log_loss": 0.979275,
@@ -459,6 +612,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.526316,
                 "log_loss": 1.003956,
@@ -468,6 +622,28 @@
                 "accuracy": 0.5,
                 "log_loss": 1.010018,
                 "brier": 0.603828
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9632274592599763,
+                "half_life": 400,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 1.0
+              },
+              "validation": {
+                "accuracy": 0.55,
+                "log_loss": 0.963227,
+                "brier": 0.575313
+              },
+              "test": {
+                "accuracy": 0.531579,
+                "log_loss": 0.983794,
+                "brier": 0.583673
               }
             }
           ]
@@ -490,6 +666,15 @@
             "log_loss": 0.999928,
             "brier": 0.594281
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.01181,
+            "ci_95": [
+              -0.025967,
+              0.004249
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
             "matches": 105,
             "wins": 79,
@@ -507,6 +692,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.542105,
                 "log_loss": 0.988929,
@@ -521,6 +707,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.536842,
                 "log_loss": 0.973271,
@@ -535,6 +722,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.531579,
                 "log_loss": 0.984258,
@@ -549,6 +737,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.507895,
                 "log_loss": 0.992763,
@@ -558,6 +747,28 @@
                 "accuracy": 0.518421,
                 "log_loss": 0.998656,
                 "brier": 0.59282
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9812923738778421,
+                "half_life": 400,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.75
+              },
+              "validation": {
+                "accuracy": 0.526316,
+                "log_loss": 0.981292,
+                "brier": 0.582135
+              },
+              "test": {
+                "accuracy": 0.539474,
+                "log_loss": 0.99157,
+                "brier": 0.588443
               }
             }
           ]
@@ -591,6 +802,15 @@
             "log_loss": 1.001697,
             "brier": 0.598548
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.01321,
+            "ci_95": [
+              -0.027883,
+              0.001961
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
             "matches": 82,
             "wins": 60,
@@ -608,6 +828,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.509804,
                 "log_loss": 0.997505,
@@ -622,6 +843,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.506536,
                 "log_loss": 0.99424,
@@ -636,6 +858,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.493464,
                 "log_loss": 1.02,
@@ -650,6 +873,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.6,
+              "settings": null,
               "validation": {
                 "accuracy": 0.45098,
                 "log_loss": 1.04714,
@@ -659,6 +883,28 @@
                 "accuracy": 0.506536,
                 "log_loss": 1.022515,
                 "brier": 0.610645
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9970894083745819,
+                "half_life": 400,
+                "shrink": 10.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.25
+              },
+              "validation": {
+                "accuracy": 0.51634,
+                "log_loss": 0.997089,
+                "brier": 0.59723
+              },
+              "test": {
+                "accuracy": 0.493464,
+                "log_loss": 0.995592,
+                "brier": 0.593841
               }
             }
           ]
@@ -681,6 +927,15 @@
             "log_loss": 1.023183,
             "brier": 0.614106
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": 0.019947,
+            "ci_95": [
+              -0.01127,
+              0.052619
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
             "matches": 109,
             "wins": 66,
@@ -698,6 +953,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.493464,
                 "log_loss": 1.001697,
@@ -712,6 +968,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.496732,
                 "log_loss": 0.988484,
@@ -726,6 +983,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.513072,
                 "log_loss": 0.971981,
@@ -740,6 +998,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.503268,
                 "log_loss": 1.004126,
@@ -749,6 +1008,28 @@
                 "accuracy": 0.457516,
                 "log_loss": 1.062797,
                 "brier": 0.638642
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9725948425989855,
+                "half_life": 120,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 1.0
+              },
+              "validation": {
+                "accuracy": 0.503268,
+                "log_loss": 0.972595,
+                "brier": 0.579412
+              },
+              "test": {
+                "accuracy": 0.48366,
+                "log_loss": 1.035471,
+                "brier": 0.621489
               }
             }
           ]
@@ -760,34 +1041,44 @@
           "train_matches": 1224,
           "validation_matches": 306,
           "test_matches": 306,
-          "selected_by_validation": "Fixed Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
-            "accuracy": 0.552288,
-            "log_loss": 0.980089,
-            "brier": 0.582349
+            "accuracy": 0.54902,
+            "log_loss": 0.974659,
+            "brier": 0.577881
           },
           "baseline_test": {
             "accuracy": 0.552288,
             "log_loss": 0.980089,
             "brier": 0.582349
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.005431,
+            "ci_95": [
+              -0.0204,
+              0.010027
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
-            "matches": 34,
-            "wins": 27,
-            "hit_rate": 0.79412,
-            "mean_confidence": 0.63931
+            "matches": 55,
+            "wins": 42,
+            "hit_rate": 0.76364,
+            "mean_confidence": 0.68083
           },
           "selected_upset_vs_elo": {
-            "alerts": 0,
-            "captured": 0,
-            "false_alarms": 0,
-            "precision": null,
-            "recall": 0.0
+            "alerts": 29,
+            "captured": 9,
+            "false_alarms": 20,
+            "precision": 0.3103448275862069,
+            "recall": 0.14516129032258066
           },
           "competitors": [
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.486928,
                 "log_loss": 1.023183,
@@ -802,6 +1093,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.486928,
                 "log_loss": 1.027261,
@@ -816,6 +1108,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.6,
+              "settings": null,
               "validation": {
                 "accuracy": 0.496732,
                 "log_loss": 1.026961,
@@ -830,6 +1123,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.6,
+              "settings": null,
               "validation": {
                 "accuracy": 0.457516,
                 "log_loss": 1.039711,
@@ -839,6 +1133,28 @@
                 "accuracy": 0.509804,
                 "log_loss": 1.012455,
                 "brier": 0.604221
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 1.0,
+              "settings": {
+                "log_loss": 1.0119227043033079,
+                "half_life": 400,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 1.0,
+                "blend": 0.75
+              },
+              "validation": {
+                "accuracy": 0.480392,
+                "log_loss": 1.011923,
+                "brier": 0.605502
+              },
+              "test": {
+                "accuracy": 0.54902,
+                "log_loss": 0.974659,
+                "brier": 0.577881
               }
             }
           ]
@@ -872,6 +1188,15 @@
             "log_loss": 0.997872,
             "brier": 0.596894
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.001563,
+            "ci_95": [
+              -0.021876,
+              0.019979
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
             "matches": 88,
             "wins": 56,
@@ -889,6 +1214,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.515789,
                 "log_loss": 1.002153,
@@ -903,6 +1229,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.505263,
                 "log_loss": 0.996928,
@@ -917,6 +1244,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.534211,
                 "log_loss": 0.988907,
@@ -931,6 +1259,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.6,
+              "settings": null,
               "validation": {
                 "accuracy": 0.497368,
                 "log_loss": 1.023903,
@@ -940,6 +1269,28 @@
                 "accuracy": 0.502632,
                 "log_loss": 1.02241,
                 "brier": 0.614005
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9954807905454082,
+                "half_life": 120,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.5
+              },
+              "validation": {
+                "accuracy": 0.531579,
+                "log_loss": 0.995481,
+                "brier": 0.59401
+              },
+              "test": {
+                "accuracy": 0.539474,
+                "log_loss": 0.992559,
+                "brier": 0.59304
               }
             }
           ]
@@ -962,6 +1313,15 @@
             "log_loss": 0.985932,
             "brier": 0.590106
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": 0.004137,
+            "ci_95": [
+              -0.01919,
+              0.030251
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
             "matches": 123,
             "wins": 74,
@@ -979,6 +1339,7 @@
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.523684,
                 "log_loss": 0.997872,
@@ -993,6 +1354,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.531579,
                 "log_loss": 0.99205,
@@ -1007,6 +1369,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.542105,
                 "log_loss": 0.989353,
@@ -1021,6 +1384,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.510526,
                 "log_loss": 1.012127,
@@ -1030,6 +1394,28 @@
                 "accuracy": 0.518421,
                 "log_loss": 0.996524,
                 "brier": 0.591958
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9905141711602637,
+                "half_life": 240,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.75
+              },
+              "validation": {
+                "accuracy": 0.536842,
+                "log_loss": 0.990514,
+                "brier": 0.591727
+              },
+              "test": {
+                "accuracy": 0.544737,
+                "log_loss": 0.972744,
+                "brier": 0.580946
               }
             }
           ]
@@ -1041,34 +1427,44 @@
           "train_matches": 1520,
           "validation_matches": 380,
           "test_matches": 380,
-          "selected_by_validation": "Calibrated Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
-            "accuracy": 0.5,
-            "log_loss": 1.00219,
-            "brier": 0.597337
+            "accuracy": 0.507895,
+            "log_loss": 1.001144,
+            "brier": 0.597478
           },
           "baseline_test": {
             "accuracy": 0.510526,
             "log_loss": 1.00768,
             "brier": 0.602603
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.006536,
+            "ci_95": [
+              -0.028381,
+              0.014253
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
-            "matches": 131,
-            "wins": 85,
-            "hit_rate": 0.64885,
-            "mean_confidence": 0.6861
+            "matches": 99,
+            "wins": 64,
+            "hit_rate": 0.64646,
+            "mean_confidence": 0.68026
           },
           "selected_upset_vs_elo": {
-            "alerts": 0,
-            "captured": 0,
-            "false_alarms": 0,
-            "precision": null,
-            "recall": 0.0
+            "alerts": 34,
+            "captured": 15,
+            "false_alarms": 19,
+            "precision": 0.4411764705882353,
+            "recall": 0.1724137931034483
           },
           "competitors": [
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.523684,
                 "log_loss": 0.985932,
@@ -1083,6 +1479,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.542105,
                 "log_loss": 0.973521,
@@ -1097,6 +1494,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.542105,
                 "log_loss": 0.981272,
@@ -1111,6 +1509,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.536842,
                 "log_loss": 0.982144,
@@ -1120,6 +1519,28 @@
                 "accuracy": 0.497368,
                 "log_loss": 1.030149,
                 "brier": 0.612955
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9675794901658201,
+                "half_life": 400,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 1.0
+              },
+              "validation": {
+                "accuracy": 0.547368,
+                "log_loss": 0.967579,
+                "brier": 0.577498
+              },
+              "test": {
+                "accuracy": 0.507895,
+                "log_loss": 1.001144,
+                "brier": 0.597478
               }
             }
           ]
@@ -1142,34 +1563,44 @@
           "train_matches": 760,
           "validation_matches": 380,
           "test_matches": 306,
-          "selected_by_validation": "Calibrated Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
-            "accuracy": 0.480392,
-            "log_loss": 1.029906,
-            "brier": 0.620084
+            "accuracy": 0.493464,
+            "log_loss": 1.037025,
+            "brier": 0.625419
           },
           "baseline_test": {
             "accuracy": 0.493464,
             "log_loss": 1.033755,
             "brier": 0.622092
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": 0.00327,
+            "ci_95": [
+              -0.010491,
+              0.016537
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
-            "matches": 55,
-            "wins": 33,
-            "hit_rate": 0.6,
-            "mean_confidence": 0.66788
+            "matches": 29,
+            "wins": 18,
+            "hit_rate": 0.62069,
+            "mean_confidence": 0.6526
           },
           "selected_upset_vs_elo": {
-            "alerts": 0,
-            "captured": 0,
-            "false_alarms": 0,
-            "precision": null,
-            "recall": 0.0
+            "alerts": 21,
+            "captured": 5,
+            "false_alarms": 16,
+            "precision": 0.23809523809523808,
+            "recall": 0.06756756756756757
           },
           "competitors": [
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.547368,
                 "log_loss": 0.996242,
@@ -1184,6 +1615,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.526316,
                 "log_loss": 0.984121,
@@ -1198,6 +1630,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.497368,
                 "log_loss": 0.991925,
@@ -1212,6 +1645,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.489474,
                 "log_loss": 1.039566,
@@ -1221,6 +1655,28 @@
                 "accuracy": 0.418301,
                 "log_loss": 1.079048,
                 "brier": 0.650991
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9819159858770176,
+                "half_life": 120,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.75
+              },
+              "validation": {
+                "accuracy": 0.536842,
+                "log_loss": 0.981916,
+                "brier": 0.584673
+              },
+              "test": {
+                "accuracy": 0.493464,
+                "log_loss": 1.037025,
+                "brier": 0.625419
               }
             }
           ]
@@ -1232,34 +1688,44 @@
           "train_matches": 1140,
           "validation_matches": 306,
           "test_matches": 306,
-          "selected_by_validation": "Calibrated Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
-            "accuracy": 0.539216,
-            "log_loss": 0.978484,
-            "brier": 0.580417
+            "accuracy": 0.545752,
+            "log_loss": 0.968254,
+            "brier": 0.574754
           },
           "baseline_test": {
             "accuracy": 0.552288,
             "log_loss": 0.976718,
             "brier": 0.580522
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": -0.008464,
+            "ci_95": [
+              -0.02015,
+              0.004493
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
-            "matches": 72,
-            "wins": 55,
-            "hit_rate": 0.76389,
-            "mean_confidence": 0.67339
+            "matches": 58,
+            "wins": 40,
+            "hit_rate": 0.68966,
+            "mean_confidence": 0.65203
           },
           "selected_upset_vs_elo": {
-            "alerts": 0,
-            "captured": 0,
-            "false_alarms": 0,
-            "precision": null,
-            "recall": 0.0
+            "alerts": 4,
+            "captured": 1,
+            "false_alarms": 3,
+            "precision": 0.25,
+            "recall": 0.013333333333333334
           },
           "competitors": [
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.493464,
                 "log_loss": 1.033755,
@@ -1274,6 +1740,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.48366,
                 "log_loss": 1.029969,
@@ -1288,6 +1755,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.6,
+              "settings": null,
               "validation": {
                 "accuracy": 0.460784,
                 "log_loss": 1.053761,
@@ -1302,6 +1770,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.6,
+              "settings": null,
               "validation": {
                 "accuracy": 0.464052,
                 "log_loss": 1.054227,
@@ -1311,6 +1780,28 @@
                 "accuracy": 0.526144,
                 "log_loss": 1.016595,
                 "brier": 0.606988
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 1.0290242030096037,
+                "half_life": 400,
+                "shrink": 4.0,
+                "rho": -0.1,
+                "temperature": 0.85,
+                "blend": 0.5
+              },
+              "validation": {
+                "accuracy": 0.496732,
+                "log_loss": 1.029024,
+                "brier": 0.619262
+              },
+              "test": {
+                "accuracy": 0.545752,
+                "log_loss": 0.968254,
+                "brier": 0.574754
               }
             }
           ]
@@ -1322,34 +1813,44 @@
           "train_matches": 1446,
           "validation_matches": 306,
           "test_matches": 306,
-          "selected_by_validation": "Fixed Elo",
+          "selected_by_validation": "Dynamic goals + Elo",
           "selected_test": {
-            "accuracy": 0.509804,
-            "log_loss": 0.999962,
-            "brier": 0.597606
+            "accuracy": 0.5,
+            "log_loss": 1.013822,
+            "brier": 0.606806
           },
           "baseline_test": {
             "accuracy": 0.509804,
             "log_loss": 0.999962,
             "brier": 0.597606
           },
+          "selected_minus_elo_log_loss": {
+            "mean_delta": 0.01386,
+            "ci_95": [
+              -0.003919,
+              0.031308
+            ],
+            "negative_means_challenger_better": true,
+            "note": "Exploratory paired match bootstrap; ignores clustering by matchweek."
+          },
           "selected_60_plus": {
-            "matches": 39,
-            "wins": 30,
-            "hit_rate": 0.76923,
-            "mean_confidence": 0.63069
+            "matches": 81,
+            "wins": 52,
+            "hit_rate": 0.64198,
+            "mean_confidence": 0.66348
           },
           "selected_upset_vs_elo": {
-            "alerts": 0,
-            "captured": 0,
-            "false_alarms": 0,
-            "precision": null,
-            "recall": 0.0
+            "alerts": 18,
+            "captured": 6,
+            "false_alarms": 12,
+            "precision": 0.3333333333333333,
+            "recall": 0.08
           },
           "competitors": [
             {
               "model": "Fixed Elo",
               "temperature": null,
+              "settings": null,
               "validation": {
                 "accuracy": 0.552288,
                 "log_loss": 0.976718,
@@ -1364,6 +1865,7 @@
             {
               "model": "Calibrated Elo",
               "temperature": 1.0,
+              "settings": null,
               "validation": {
                 "accuracy": 0.539216,
                 "log_loss": 0.977605,
@@ -1378,6 +1880,7 @@
             {
               "model": "Results + Elo logistic",
               "temperature": 1.15,
+              "settings": null,
               "validation": {
                 "accuracy": 0.54902,
                 "log_loss": 0.982564,
@@ -1392,6 +1895,7 @@
             {
               "model": "Results + Elo boosted",
               "temperature": 1.35,
+              "settings": null,
               "validation": {
                 "accuracy": 0.509804,
                 "log_loss": 1.014955,
@@ -1401,6 +1905,28 @@
                 "accuracy": 0.506536,
                 "log_loss": 1.004664,
                 "brier": 0.599696
+              }
+            },
+            {
+              "model": "Dynamic goals + Elo",
+              "temperature": 0.85,
+              "settings": {
+                "log_loss": 0.9615293565092655,
+                "half_life": 240,
+                "shrink": 4.0,
+                "rho": 0.1,
+                "temperature": 0.85,
+                "blend": 0.75
+              },
+              "validation": {
+                "accuracy": 0.539216,
+                "log_loss": 0.961529,
+                "brier": 0.570823
+              },
+              "test": {
+                "accuracy": 0.5,
+                "log_loss": 1.013822,
+                "brier": 0.606806
               }
             }
           ]
@@ -1431,7 +1957,7 @@
     "train_matches": 1418,
     "validation_matches": 376,
     "retrospective_matches": 376,
-    "selected_on_validation": "Results + Elo + xG",
+    "selected_on_validation": "Compact decayed xG + Elo",
     "comparison": [
       {
         "model": "Elo only",
@@ -1464,7 +1990,29 @@
         "test_log_loss": 1.0210206513,
         "test_brier": 0.613564172,
         "test_accuracy": 0.4813829787,
+        "selected": false
+      },
+      {
+        "model": "Compact decayed xG + Elo",
+        "temp": 1.2,
+        "val_log_loss": 0.9775116976,
+        "val_brier": 0.583650681,
+        "val_accuracy": 0.5372340426,
+        "test_log_loss": 1.0224736011,
+        "test_brier": 0.6146911384,
+        "test_accuracy": 0.4946808511,
         "selected": true
+      },
+      {
+        "model": "Compact decayed non-penalty xG + Elo",
+        "temp": 1.2,
+        "val_log_loss": 0.9783035886,
+        "val_brier": 0.5841742627,
+        "val_accuracy": 0.539893617,
+        "test_log_loss": 1.0225629335,
+        "test_brier": 0.6147094586,
+        "test_accuracy": 0.4867021277,
+        "selected": false
       },
       {
         "model": "Results + Elo + xG + pressing",
