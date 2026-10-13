@@ -151,3 +151,24 @@ Each research walk-forward fold tunes a small grid of recency half-life, shrinka
 **Risk controls:** no retrospective model is promoted to mobile Weekly Brief, strong picks, or Upset Watch solely for a historic gain. Train/report failures remain visible. New models need pre-kickoff saved forecasts and additional 2026/27 results before selection for real deployment. If a scoreline challenger fails to beat fixed Elo by a meaningful margin or is poorly calibrated, keep Elo as the default. No betting-profit promise or automatic live xG inference from historical-only observations.
 
 Advanced goal model research is automatically run in the GitHub Actions workflow named Train Football Lab (research only); see data/training_report.json for the newest versioned results.
+
+
+
+## Prospective model tournament: 2026/27, live after kickoff
+
+**Why:** Retrospective win-rate improvements did not reliably transfer to later seasons. Only genuine future matches can reveal whether calibration or dynamic-goals models are a repeatable improvement.
+
+The frozen shadow_engine.py now produces three research forecasts for exactly the SAME upcoming match:
+- Fixed Elo — the original model baseline.
+- Calibrated Elo — multinomial logistic calibration of pre-match Elo difference, fitted on completed historical 2020–2025 seasons only, no 2026 outcomes.
+- Dynamic goals + Elo — recency-weighted home/away attack/defence score model, with predefined 240-day half-life, 4-match prior shrinkage, low-score correction of -0.10 and 50% Elo blend (not tuned on future results).
+
+tracker_job.py captures these vectors in each match's FIRST pre-kickoff snapshot along with the unchanged primary prediction. Mobile scans also attempt this capture. **Existing archived rows are never backfilled with shadow probabilities after the fact**; such rows are deliberately excluded from the model tournament. Identical fixture-ID FINISHED full-time outcomes settle all models. The Tracker tab shows a strict same-match table of 1X2 accuracy, log loss, Brier, difference from Elo, and 60%+ estimates. The tracker warns until at least 100 paired completed matches; larger diverse samples across multiple months and leagues are better. Differences must be evaluated with uncertainty and calibration; an absolute win-rate threshold does NOT by itself validate probability forecasts.
+
+Current Understat xG/PPDA metrics are NOT live-ready in these shadow forecasts: current coverage/availability is unverified. Historical xG studies continue separately.
+
+### Activate unattended, durable forecast capture
+
+The cloud archive at data/tracker_archive.json requires a one-time GitHub Actions secret (the Streamlit secret is separate). Open GitHub repository → Settings → Secrets and variables → Actions → New repository secret, name FOOTBALL_DATA_API_TOKEN, paste the token only there. Then open Actions → Archive Football Lab predictions → Run workflow. It runs daily at 07:00 UTC subject to GitHub scheduling; missing credentials cause an explicit workflow failure rather than false success. To inspect on your phone, open Tracker → Sync cloud archive. The repository is public: archived predictions and outcomes are not confidential, and API tokens are NEVER recorded. Manual phone scans can capture additional temporary records; download JSON as a backup because Streamlit's free disk is not durable.
+
+No models are automatically promoted to the live picks. Review at least 100 shared future matches plus their date/league distribution, per-model log loss, Brier, 60%+ reliability, and pairing error bars. Only then consider a controlled rollout of a model that consistently beats fixed Elo; otherwise retain Elo.
