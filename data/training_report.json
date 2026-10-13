@@ -1,14 +1,1485 @@
 {
   "schema_version": 1,
-  "status": "queued",
-  "generated_at": null,
+  "generated_at": "2026-10-13T11:51:30.825067+00:00",
   "method": "Rolling-origin historical men's club results",
-  "leagues": {},
+  "test_seasons": [
+    2023,
+    2024,
+    2025
+  ],
+  "status": "completed",
+  "leagues": {
+    "PL": {
+      "folds": [
+        {
+          "test_season": 2023,
+          "training_through": 2021,
+          "validation_season": 2022,
+          "train_matches": 760,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Fixed Elo",
+          "selected_test": {
+            "accuracy": 0.573684,
+            "log_loss": 0.95011,
+            "brier": 0.561907
+          },
+          "baseline_test": {
+            "accuracy": 0.573684,
+            "log_loss": 0.95011,
+            "brier": 0.561907
+          },
+          "selected_60_plus": {
+            "matches": 49,
+            "wins": 40,
+            "hit_rate": 0.81633,
+            "mean_confidence": 0.64035
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.555263,
+                "log_loss": 0.980561,
+                "brier": 0.584254
+              },
+              "test": {
+                "accuracy": 0.573684,
+                "log_loss": 0.95011,
+                "brier": 0.561907
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.539474,
+                "log_loss": 0.991336,
+                "brier": 0.590097
+              },
+              "test": {
+                "accuracy": 0.563158,
+                "log_loss": 0.941339,
+                "brier": 0.555414
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.528947,
+                "log_loss": 0.994063,
+                "brier": 0.59318
+              },
+              "test": {
+                "accuracy": 0.568421,
+                "log_loss": 0.941568,
+                "brier": 0.55559
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.502632,
+                "log_loss": 1.017414,
+                "brier": 0.611091
+              },
+              "test": {
+                "accuracy": 0.552632,
+                "log_loss": 0.964742,
+                "brier": 0.569637
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2024,
+          "training_through": 2022,
+          "validation_season": 2023,
+          "train_matches": 1140,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Results + Elo logistic",
+          "selected_test": {
+            "accuracy": 0.502632,
+            "log_loss": 1.017365,
+            "brier": 0.608635
+          },
+          "baseline_test": {
+            "accuracy": 0.534211,
+            "log_loss": 0.990255,
+            "brier": 0.592068
+          },
+          "selected_60_plus": {
+            "matches": 152,
+            "wins": 95,
+            "hit_rate": 0.625,
+            "mean_confidence": 0.73863
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 19,
+            "captured": 6,
+            "false_alarms": 13,
+            "precision": 0.3157894736842105,
+            "recall": 0.07142857142857142
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.573684,
+                "log_loss": 0.95011,
+                "brier": 0.561907
+              },
+              "test": {
+                "accuracy": 0.534211,
+                "log_loss": 0.990255,
+                "brier": 0.592068
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.568421,
+                "log_loss": 0.933956,
+                "brier": 0.550513
+              },
+              "test": {
+                "accuracy": 0.526316,
+                "log_loss": 0.987925,
+                "brier": 0.590571
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.592105,
+                "log_loss": 0.926996,
+                "brier": 0.544909
+              },
+              "test": {
+                "accuracy": 0.502632,
+                "log_loss": 1.017365,
+                "brier": 0.608635
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.581579,
+                "log_loss": 0.957218,
+                "brier": 0.561999
+              },
+              "test": {
+                "accuracy": 0.486842,
+                "log_loss": 1.033404,
+                "brier": 0.619381
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2025,
+          "training_through": 2023,
+          "validation_season": 2024,
+          "train_matches": 1520,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Calibrated Elo",
+          "selected_test": {
+            "accuracy": 0.478947,
+            "log_loss": 1.024918,
+            "brier": 0.616745
+          },
+          "baseline_test": {
+            "accuracy": 0.486842,
+            "log_loss": 1.021931,
+            "brier": 0.613949
+          },
+          "selected_60_plus": {
+            "matches": 98,
+            "wins": 63,
+            "hit_rate": 0.64286,
+            "mean_confidence": 0.67438
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.534211,
+                "log_loss": 0.990255,
+                "brier": 0.592068
+              },
+              "test": {
+                "accuracy": 0.486842,
+                "log_loss": 1.021931,
+                "brier": 0.613949
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.531579,
+                "log_loss": 0.983407,
+                "brier": 0.587565
+              },
+              "test": {
+                "accuracy": 0.478947,
+                "log_loss": 1.024918,
+                "brier": 0.616745
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.502632,
+                "log_loss": 0.995605,
+                "brier": 0.596033
+              },
+              "test": {
+                "accuracy": 0.473684,
+                "log_loss": 1.028741,
+                "brier": 0.61858
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.510526,
+                "log_loss": 1.007151,
+                "brier": 0.602825
+              },
+              "test": {
+                "accuracy": 0.457895,
+                "log_loss": 1.062522,
+                "brier": 0.642655
+              }
+            }
+          ]
+        }
+      ],
+      "number_of_folds": 3,
+      "matching_predicted_fixtures": 1140,
+      "notes": "Retrospective development diagnostic. The seasons have been examined during Football Lab development; this is NOT a fresh prospective test. The live engine is unchanged. No automatic promotion.",
+      "league_code": "PL",
+      "historical_matches": 2280,
+      "historical_first": "2020-09-12",
+      "historical_last": "2026-05-24"
+    },
+    "PD": {
+      "folds": [
+        {
+          "test_season": 2023,
+          "training_through": 2021,
+          "validation_season": 2022,
+          "train_matches": 760,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Fixed Elo",
+          "selected_test": {
+            "accuracy": 0.536842,
+            "log_loss": 0.980598,
+            "brier": 0.584625
+          },
+          "baseline_test": {
+            "accuracy": 0.536842,
+            "log_loss": 0.980598,
+            "brier": 0.584625
+          },
+          "selected_60_plus": {
+            "matches": 44,
+            "wins": 35,
+            "hit_rate": 0.79545,
+            "mean_confidence": 0.63197
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.547368,
+                "log_loss": 1.001773,
+                "brier": 0.597567
+              },
+              "test": {
+                "accuracy": 0.536842,
+                "log_loss": 0.980598,
+                "brier": 0.584625
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.55,
+                "log_loss": 1.00715,
+                "brier": 0.598549
+              },
+              "test": {
+                "accuracy": 0.544737,
+                "log_loss": 0.958114,
+                "brier": 0.57182
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.521053,
+                "log_loss": 1.013386,
+                "brier": 0.603516
+              },
+              "test": {
+                "accuracy": 0.515789,
+                "log_loss": 0.97982,
+                "brier": 0.58669
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.6,
+              "validation": {
+                "accuracy": 0.489474,
+                "log_loss": 1.037166,
+                "brier": 0.622403
+              },
+              "test": {
+                "accuracy": 0.471053,
+                "log_loss": 1.021209,
+                "brier": 0.614389
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2024,
+          "training_through": 2022,
+          "validation_season": 2023,
+          "train_matches": 1140,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Calibrated Elo",
+          "selected_test": {
+            "accuracy": 0.536842,
+            "log_loss": 0.976375,
+            "brier": 0.578507
+          },
+          "baseline_test": {
+            "accuracy": 0.542105,
+            "log_loss": 0.988929,
+            "brier": 0.587852
+          },
+          "selected_60_plus": {
+            "matches": 132,
+            "wins": 88,
+            "hit_rate": 0.66667,
+            "mean_confidence": 0.71341
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.536842,
+                "log_loss": 0.980598,
+                "brier": 0.584625
+              },
+              "test": {
+                "accuracy": 0.542105,
+                "log_loss": 0.988929,
+                "brier": 0.587852
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 0.85,
+              "validation": {
+                "accuracy": 0.539474,
+                "log_loss": 0.958781,
+                "brier": 0.572935
+              },
+              "test": {
+                "accuracy": 0.536842,
+                "log_loss": 0.976375,
+                "brier": 0.578507
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.521053,
+                "log_loss": 0.979275,
+                "brier": 0.584466
+              },
+              "test": {
+                "accuracy": 0.539474,
+                "log_loss": 0.993869,
+                "brier": 0.590658
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.526316,
+                "log_loss": 1.003956,
+                "brier": 0.598553
+              },
+              "test": {
+                "accuracy": 0.5,
+                "log_loss": 1.010018,
+                "brier": 0.603828
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2025,
+          "training_through": 2023,
+          "validation_season": 2024,
+          "train_matches": 1520,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Calibrated Elo",
+          "selected_test": {
+            "accuracy": 0.510526,
+            "log_loss": 0.988117,
+            "brier": 0.583746
+          },
+          "baseline_test": {
+            "accuracy": 0.510526,
+            "log_loss": 0.999928,
+            "brier": 0.594281
+          },
+          "selected_60_plus": {
+            "matches": 105,
+            "wins": 79,
+            "hit_rate": 0.75238,
+            "mean_confidence": 0.70835
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.542105,
+                "log_loss": 0.988929,
+                "brier": 0.587852
+              },
+              "test": {
+                "accuracy": 0.510526,
+                "log_loss": 0.999928,
+                "brier": 0.594281
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.536842,
+                "log_loss": 0.973271,
+                "brier": 0.576979
+              },
+              "test": {
+                "accuracy": 0.510526,
+                "log_loss": 0.988117,
+                "brier": 0.583746
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.531579,
+                "log_loss": 0.984258,
+                "brier": 0.585341
+              },
+              "test": {
+                "accuracy": 0.521053,
+                "log_loss": 0.980503,
+                "brier": 0.579779
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.507895,
+                "log_loss": 0.992763,
+                "brier": 0.59189
+              },
+              "test": {
+                "accuracy": 0.518421,
+                "log_loss": 0.998656,
+                "brier": 0.59282
+              }
+            }
+          ]
+        }
+      ],
+      "number_of_folds": 3,
+      "matching_predicted_fixtures": 1140,
+      "notes": "Retrospective development diagnostic. The seasons have been examined during Football Lab development; this is NOT a fresh prospective test. The live engine is unchanged. No automatic promotion.",
+      "league_code": "PD",
+      "historical_matches": 2280,
+      "historical_first": "2020-09-12",
+      "historical_last": "2026-05-24"
+    },
+    "BL1": {
+      "folds": [
+        {
+          "test_season": 2023,
+          "training_through": 2021,
+          "validation_season": 2022,
+          "train_matches": 612,
+          "validation_matches": 306,
+          "test_matches": 306,
+          "selected_by_validation": "Calibrated Elo",
+          "selected_test": {
+            "accuracy": 0.490196,
+            "log_loss": 0.988486,
+            "brier": 0.590832
+          },
+          "baseline_test": {
+            "accuracy": 0.493464,
+            "log_loss": 1.001697,
+            "brier": 0.598548
+          },
+          "selected_60_plus": {
+            "matches": 82,
+            "wins": 60,
+            "hit_rate": 0.73171,
+            "mean_confidence": 0.68418
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.509804,
+                "log_loss": 0.997505,
+                "brier": 0.597711
+              },
+              "test": {
+                "accuracy": 0.493464,
+                "log_loss": 1.001697,
+                "brier": 0.598548
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.506536,
+                "log_loss": 0.99424,
+                "brier": 0.596893
+              },
+              "test": {
+                "accuracy": 0.490196,
+                "log_loss": 0.988486,
+                "brier": 0.590832
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.493464,
+                "log_loss": 1.02,
+                "brier": 0.61303
+              },
+              "test": {
+                "accuracy": 0.519608,
+                "log_loss": 0.9748,
+                "brier": 0.579007
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.6,
+              "validation": {
+                "accuracy": 0.45098,
+                "log_loss": 1.04714,
+                "brier": 0.63052
+              },
+              "test": {
+                "accuracy": 0.506536,
+                "log_loss": 1.022515,
+                "brier": 0.610645
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2024,
+          "training_through": 2022,
+          "validation_season": 2023,
+          "train_matches": 918,
+          "validation_matches": 306,
+          "test_matches": 306,
+          "selected_by_validation": "Results + Elo logistic",
+          "selected_test": {
+            "accuracy": 0.493464,
+            "log_loss": 1.04313,
+            "brier": 0.622167
+          },
+          "baseline_test": {
+            "accuracy": 0.486928,
+            "log_loss": 1.023183,
+            "brier": 0.614106
+          },
+          "selected_60_plus": {
+            "matches": 109,
+            "wins": 66,
+            "hit_rate": 0.6055,
+            "mean_confidence": 0.7064
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 16,
+            "captured": 4,
+            "false_alarms": 12,
+            "precision": 0.25,
+            "recall": 0.05
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.493464,
+                "log_loss": 1.001697,
+                "brier": 0.598548
+              },
+              "test": {
+                "accuracy": 0.486928,
+                "log_loss": 1.023183,
+                "brier": 0.614106
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.496732,
+                "log_loss": 0.988484,
+                "brier": 0.590964
+              },
+              "test": {
+                "accuracy": 0.48366,
+                "log_loss": 1.033176,
+                "brier": 0.619236
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.513072,
+                "log_loss": 0.971981,
+                "brier": 0.579016
+              },
+              "test": {
+                "accuracy": 0.493464,
+                "log_loss": 1.04313,
+                "brier": 0.622167
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.503268,
+                "log_loss": 1.004126,
+                "brier": 0.602093
+              },
+              "test": {
+                "accuracy": 0.457516,
+                "log_loss": 1.062797,
+                "brier": 0.638642
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2025,
+          "training_through": 2023,
+          "validation_season": 2024,
+          "train_matches": 1224,
+          "validation_matches": 306,
+          "test_matches": 306,
+          "selected_by_validation": "Fixed Elo",
+          "selected_test": {
+            "accuracy": 0.552288,
+            "log_loss": 0.980089,
+            "brier": 0.582349
+          },
+          "baseline_test": {
+            "accuracy": 0.552288,
+            "log_loss": 0.980089,
+            "brier": 0.582349
+          },
+          "selected_60_plus": {
+            "matches": 34,
+            "wins": 27,
+            "hit_rate": 0.79412,
+            "mean_confidence": 0.63931
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.486928,
+                "log_loss": 1.023183,
+                "brier": 0.614106
+              },
+              "test": {
+                "accuracy": 0.552288,
+                "log_loss": 0.980089,
+                "brier": 0.582349
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.486928,
+                "log_loss": 1.027261,
+                "brier": 0.61596
+              },
+              "test": {
+                "accuracy": 0.555556,
+                "log_loss": 0.980093,
+                "brier": 0.58238
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.6,
+              "validation": {
+                "accuracy": 0.496732,
+                "log_loss": 1.026961,
+                "brier": 0.613852
+              },
+              "test": {
+                "accuracy": 0.542484,
+                "log_loss": 0.986028,
+                "brier": 0.586581
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.6,
+              "validation": {
+                "accuracy": 0.457516,
+                "log_loss": 1.039711,
+                "brier": 0.623967
+              },
+              "test": {
+                "accuracy": 0.509804,
+                "log_loss": 1.012455,
+                "brier": 0.604221
+              }
+            }
+          ]
+        }
+      ],
+      "number_of_folds": 3,
+      "matching_predicted_fixtures": 918,
+      "notes": "Retrospective development diagnostic. The seasons have been examined during Football Lab development; this is NOT a fresh prospective test. The live engine is unchanged. No automatic promotion.",
+      "league_code": "BL1",
+      "historical_matches": 1836,
+      "historical_first": "2020-09-18",
+      "historical_last": "2026-05-16"
+    },
+    "SA": {
+      "folds": [
+        {
+          "test_season": 2023,
+          "training_through": 2021,
+          "validation_season": 2022,
+          "train_matches": 760,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Results + Elo logistic",
+          "selected_test": {
+            "accuracy": 0.515789,
+            "log_loss": 0.996309,
+            "brier": 0.594357
+          },
+          "baseline_test": {
+            "accuracy": 0.523684,
+            "log_loss": 0.997872,
+            "brier": 0.596894
+          },
+          "selected_60_plus": {
+            "matches": 88,
+            "wins": 56,
+            "hit_rate": 0.63636,
+            "mean_confidence": 0.67113
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 23,
+            "captured": 6,
+            "false_alarms": 17,
+            "precision": 0.2608695652173913,
+            "recall": 0.08695652173913043
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.515789,
+                "log_loss": 1.002153,
+                "brier": 0.599057
+              },
+              "test": {
+                "accuracy": 0.523684,
+                "log_loss": 0.997872,
+                "brier": 0.596894
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.505263,
+                "log_loss": 0.996928,
+                "brier": 0.595438
+              },
+              "test": {
+                "accuracy": 0.539474,
+                "log_loss": 0.994736,
+                "brier": 0.595008
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.534211,
+                "log_loss": 0.988907,
+                "brier": 0.589931
+              },
+              "test": {
+                "accuracy": 0.515789,
+                "log_loss": 0.996309,
+                "brier": 0.594357
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.6,
+              "validation": {
+                "accuracy": 0.497368,
+                "log_loss": 1.023903,
+                "brier": 0.614045
+              },
+              "test": {
+                "accuracy": 0.502632,
+                "log_loss": 1.02241,
+                "brier": 0.614005
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2024,
+          "training_through": 2022,
+          "validation_season": 2023,
+          "train_matches": 1140,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Results + Elo logistic",
+          "selected_test": {
+            "accuracy": 0.542105,
+            "log_loss": 0.990069,
+            "brier": 0.591107
+          },
+          "baseline_test": {
+            "accuracy": 0.523684,
+            "log_loss": 0.985932,
+            "brier": 0.590106
+          },
+          "selected_60_plus": {
+            "matches": 123,
+            "wins": 74,
+            "hit_rate": 0.60163,
+            "mean_confidence": 0.69053
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 20,
+            "captured": 7,
+            "false_alarms": 13,
+            "precision": 0.35,
+            "recall": 0.0958904109589041
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.523684,
+                "log_loss": 0.997872,
+                "brier": 0.596894
+              },
+              "test": {
+                "accuracy": 0.523684,
+                "log_loss": 0.985932,
+                "brier": 0.590106
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.531579,
+                "log_loss": 0.99205,
+                "brier": 0.59351
+              },
+              "test": {
+                "accuracy": 0.547368,
+                "log_loss": 0.975803,
+                "brier": 0.583637
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.542105,
+                "log_loss": 0.989353,
+                "brier": 0.588871
+              },
+              "test": {
+                "accuracy": 0.542105,
+                "log_loss": 0.990069,
+                "brier": 0.591107
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.510526,
+                "log_loss": 1.012127,
+                "brier": 0.604825
+              },
+              "test": {
+                "accuracy": 0.518421,
+                "log_loss": 0.996524,
+                "brier": 0.591958
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2025,
+          "training_through": 2023,
+          "validation_season": 2024,
+          "train_matches": 1520,
+          "validation_matches": 380,
+          "test_matches": 380,
+          "selected_by_validation": "Calibrated Elo",
+          "selected_test": {
+            "accuracy": 0.5,
+            "log_loss": 1.00219,
+            "brier": 0.597337
+          },
+          "baseline_test": {
+            "accuracy": 0.510526,
+            "log_loss": 1.00768,
+            "brier": 0.602603
+          },
+          "selected_60_plus": {
+            "matches": 131,
+            "wins": 85,
+            "hit_rate": 0.64885,
+            "mean_confidence": 0.6861
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.523684,
+                "log_loss": 0.985932,
+                "brier": 0.590106
+              },
+              "test": {
+                "accuracy": 0.510526,
+                "log_loss": 1.00768,
+                "brier": 0.602603
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.542105,
+                "log_loss": 0.973521,
+                "brier": 0.582965
+              },
+              "test": {
+                "accuracy": 0.5,
+                "log_loss": 1.00219,
+                "brier": 0.597337
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.542105,
+                "log_loss": 0.981272,
+                "brier": 0.58734
+              },
+              "test": {
+                "accuracy": 0.536842,
+                "log_loss": 1.008858,
+                "brier": 0.601027
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.536842,
+                "log_loss": 0.982144,
+                "brier": 0.585141
+              },
+              "test": {
+                "accuracy": 0.497368,
+                "log_loss": 1.030149,
+                "brier": 0.612955
+              }
+            }
+          ]
+        }
+      ],
+      "number_of_folds": 3,
+      "matching_predicted_fixtures": 1140,
+      "notes": "Retrospective development diagnostic. The seasons have been examined during Football Lab development; this is NOT a fresh prospective test. The live engine is unchanged. No automatic promotion.",
+      "league_code": "SA",
+      "historical_matches": 2280,
+      "historical_first": "2020-09-19",
+      "historical_last": "2026-05-24"
+    },
+    "FL1": {
+      "folds": [
+        {
+          "test_season": 2023,
+          "training_through": 2021,
+          "validation_season": 2022,
+          "train_matches": 760,
+          "validation_matches": 380,
+          "test_matches": 306,
+          "selected_by_validation": "Calibrated Elo",
+          "selected_test": {
+            "accuracy": 0.480392,
+            "log_loss": 1.029906,
+            "brier": 0.620084
+          },
+          "baseline_test": {
+            "accuracy": 0.493464,
+            "log_loss": 1.033755,
+            "brier": 0.622092
+          },
+          "selected_60_plus": {
+            "matches": 55,
+            "wins": 33,
+            "hit_rate": 0.6,
+            "mean_confidence": 0.66788
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.547368,
+                "log_loss": 0.996242,
+                "brier": 0.59339
+              },
+              "test": {
+                "accuracy": 0.493464,
+                "log_loss": 1.033755,
+                "brier": 0.622092
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.526316,
+                "log_loss": 0.984121,
+                "brier": 0.586208
+              },
+              "test": {
+                "accuracy": 0.480392,
+                "log_loss": 1.029906,
+                "brier": 0.620084
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.497368,
+                "log_loss": 0.991925,
+                "brier": 0.591494
+              },
+              "test": {
+                "accuracy": 0.45098,
+                "log_loss": 1.048042,
+                "brier": 0.630056
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.489474,
+                "log_loss": 1.039566,
+                "brier": 0.623261
+              },
+              "test": {
+                "accuracy": 0.418301,
+                "log_loss": 1.079048,
+                "brier": 0.650991
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2024,
+          "training_through": 2022,
+          "validation_season": 2023,
+          "train_matches": 1140,
+          "validation_matches": 306,
+          "test_matches": 306,
+          "selected_by_validation": "Calibrated Elo",
+          "selected_test": {
+            "accuracy": 0.539216,
+            "log_loss": 0.978484,
+            "brier": 0.580417
+          },
+          "baseline_test": {
+            "accuracy": 0.552288,
+            "log_loss": 0.976718,
+            "brier": 0.580522
+          },
+          "selected_60_plus": {
+            "matches": 72,
+            "wins": 55,
+            "hit_rate": 0.76389,
+            "mean_confidence": 0.67339
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.493464,
+                "log_loss": 1.033755,
+                "brier": 0.622092
+              },
+              "test": {
+                "accuracy": 0.552288,
+                "log_loss": 0.976718,
+                "brier": 0.580522
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.48366,
+                "log_loss": 1.029969,
+                "brier": 0.619748
+              },
+              "test": {
+                "accuracy": 0.539216,
+                "log_loss": 0.978484,
+                "brier": 0.580417
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.6,
+              "validation": {
+                "accuracy": 0.460784,
+                "log_loss": 1.053761,
+                "brier": 0.6342
+              },
+              "test": {
+                "accuracy": 0.562092,
+                "log_loss": 0.991329,
+                "brier": 0.589836
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.6,
+              "validation": {
+                "accuracy": 0.464052,
+                "log_loss": 1.054227,
+                "brier": 0.634444
+              },
+              "test": {
+                "accuracy": 0.526144,
+                "log_loss": 1.016595,
+                "brier": 0.606988
+              }
+            }
+          ]
+        },
+        {
+          "test_season": 2025,
+          "training_through": 2023,
+          "validation_season": 2024,
+          "train_matches": 1446,
+          "validation_matches": 306,
+          "test_matches": 306,
+          "selected_by_validation": "Fixed Elo",
+          "selected_test": {
+            "accuracy": 0.509804,
+            "log_loss": 0.999962,
+            "brier": 0.597606
+          },
+          "baseline_test": {
+            "accuracy": 0.509804,
+            "log_loss": 0.999962,
+            "brier": 0.597606
+          },
+          "selected_60_plus": {
+            "matches": 39,
+            "wins": 30,
+            "hit_rate": 0.76923,
+            "mean_confidence": 0.63069
+          },
+          "selected_upset_vs_elo": {
+            "alerts": 0,
+            "captured": 0,
+            "false_alarms": 0,
+            "precision": null,
+            "recall": 0.0
+          },
+          "competitors": [
+            {
+              "model": "Fixed Elo",
+              "temperature": null,
+              "validation": {
+                "accuracy": 0.552288,
+                "log_loss": 0.976718,
+                "brier": 0.580522
+              },
+              "test": {
+                "accuracy": 0.509804,
+                "log_loss": 0.999962,
+                "brier": 0.597606
+              }
+            },
+            {
+              "model": "Calibrated Elo",
+              "temperature": 1.0,
+              "validation": {
+                "accuracy": 0.539216,
+                "log_loss": 0.977605,
+                "brier": 0.579359
+              },
+              "test": {
+                "accuracy": 0.493464,
+                "log_loss": 1.005752,
+                "brier": 0.600313
+              }
+            },
+            {
+              "model": "Results + Elo logistic",
+              "temperature": 1.15,
+              "validation": {
+                "accuracy": 0.54902,
+                "log_loss": 0.982564,
+                "brier": 0.582874
+              },
+              "test": {
+                "accuracy": 0.509804,
+                "log_loss": 1.008772,
+                "brier": 0.601647
+              }
+            },
+            {
+              "model": "Results + Elo boosted",
+              "temperature": 1.35,
+              "validation": {
+                "accuracy": 0.509804,
+                "log_loss": 1.014955,
+                "brier": 0.604528
+              },
+              "test": {
+                "accuracy": 0.506536,
+                "log_loss": 1.004664,
+                "brier": 0.599696
+              }
+            }
+          ]
+        }
+      ],
+      "number_of_folds": 3,
+      "matching_predicted_fixtures": 918,
+      "notes": "Retrospective development diagnostic. The seasons have been examined during Football Lab development; this is NOT a fresh prospective test. The live engine is unchanged. No automatic promotion.",
+      "league_code": "FL1",
+      "historical_matches": 2058,
+      "historical_first": "2020-08-21",
+      "historical_last": "2026-05-17"
+    }
+  },
   "errors": {},
   "advanced": {
-    "status": "not_run",
-    "note": "Training scheduled; no xG result has been verified."
+    "status": "completed",
+    "matched_matches": 2242,
+    "unmatched_matches": 38,
+    "season_coverage": {
+      "2020": 342,
+      "2021": 380,
+      "2022": 380,
+      "2023": 380,
+      "2024": 380,
+      "2025": 380
+    },
+    "train_matches": 1418,
+    "validation_matches": 376,
+    "retrospective_matches": 376,
+    "selected_on_validation": "Results + Elo + xG",
+    "comparison": [
+      {
+        "model": "Elo only",
+        "temp": null,
+        "val_log_loss": 0.9907100368,
+        "val_brier": 0.5924469982,
+        "val_accuracy": 0.5345744681,
+        "test_log_loss": 1.0210595983,
+        "test_brier": 0.6132429102,
+        "test_accuracy": 0.4893617021,
+        "selected": false
+      },
+      {
+        "model": "Results + Elo",
+        "temp": 1.5,
+        "val_log_loss": 0.9947094128,
+        "val_brier": 0.5949838765,
+        "val_accuracy": 0.5132978723,
+        "test_log_loss": 1.0200317753,
+        "test_brier": 0.6126215856,
+        "test_accuracy": 0.4787234043,
+        "selected": false
+      },
+      {
+        "model": "Results + Elo + xG",
+        "temp": 1.5,
+        "val_log_loss": 0.9825543035,
+        "val_brier": 0.5865412172,
+        "val_accuracy": 0.5319148936,
+        "test_log_loss": 1.0210206513,
+        "test_brier": 0.613564172,
+        "test_accuracy": 0.4813829787,
+        "selected": true
+      },
+      {
+        "model": "Results + Elo + xG + pressing",
+        "temp": 1.5,
+        "val_log_loss": 0.9914301302,
+        "val_brier": 0.5922699375,
+        "val_accuracy": 0.5239361702,
+        "test_log_loss": 1.0319728019,
+        "test_brier": 0.6208943177,
+        "test_accuracy": 0.4893617021,
+        "selected": false
+      }
+    ],
+    "note": "2025/26 already examined in V3.1: retrospective diagnostic only, NOT an untouched final holdout. A future prospective season is needed to verify uplift.\nLive fixtures continue with the old results-based model."
   },
   "live_model_promoted": false,
-  "caution": "Training has not completed. There are no new results to claim yet."
+  "caution": "2023\u20132025 seasons have previously been used during Football Lab development. These are DEVELOPMENT diagnostics, not an independent prospective validation. The original live Elo/form engine is unchanged."
 }
