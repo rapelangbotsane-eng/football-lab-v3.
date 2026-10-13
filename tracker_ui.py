@@ -9,7 +9,7 @@ from club_ui import live_matches
 from prediction_tracker import (
     load_local,reconcile_local,merge_archives,tracking_summary,
     weekly_stats,monthly_stats,to_csv,settle_with_feed,save_archive_local,
-    probability_quality,confidence_buckets,
+    probability_quality,confidence_buckets,prospective_comparison,
 )
 from tracker_cloud import fetch_cloud_archive
 from weekly_scout import SA_TIME
@@ -110,6 +110,21 @@ def render(token=None):
         st.info("No archived predictions yet. Open **Brief**, tap **Build / refresh weekly brief**, and the model will record upcoming matches before kickoff. Return to this tab after fixtures finish.")
         return
     _summary(rows)
+    st.subheader("Live model tournament")
+    paired=prospective_comparison(rows)
+    if paired["matches"]==0:
+        st.info("No settled paired forecasts yet. New scans now save fixed Elo, calibrated Elo and dynamic-goals forecasts alongside the main prediction. We only compare matches scored AFTER the forecast was saved.")
+    else:
+        st.caption(f'{paired["matches"]} completed matches with all models recorded before kickoff; fewer than 100 is preliminary.')
+        tournament=pd.DataFrame(paired["models"])
+        tournament=tournament[["model","matches","accuracy","log_loss","brier","log_loss_delta_vs_fixed_elo","strong_60_count","strong_60_accuracy"]]
+        st.dataframe(tournament,hide_index=True,use_container_width=True)
+        st.caption("Lower log loss and Brier are better. Negative difference vs fixed Elo is an improvement. Scores use the exact SAME fixtures, not separate hand-picked samples.")
+        if not paired["trustworthy_sample"]:
+            st.warning("Still collecting evidence. We will not promote a challenger on this small sample.")
+        st.download_button("Download live head-to-head (CSV)",
+            tournament.to_csv(index=False),file_name="football_lab_shadow_comparison.csv",
+            mime="text/csv",use_container_width=True,key="shadow_comparison_csv")
     quality=probability_quality(rows)
     st.subheader("Probability quality")
     x,y=st.columns(2)
