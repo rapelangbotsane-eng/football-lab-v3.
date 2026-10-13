@@ -132,3 +132,22 @@ The six white-icon navigation tiles now use browser-side Streamlit tabs with a f
 
 ### How to check the cloud training
 Go to the public GitHub repository → Actions → **Train Football Lab (research only)**. A green check indicates the workflow ran successfully; read its log and then open the app's Training lab. If workflow permissions block committing data/training_report.json, inspect its downloadable artifact. The user does not need to code.
+
+
+## Dynamic goals and compact xG — advanced V4 research upgrade (2026-10)
+
+Based on published football score-forecast research:
+- Dixon & Coles (1997), DOI: https://doi.org/10.1111/1467-9876.00065
+- Dynamic attack/defence models (Crowder et al. 2002): https://doi.org/10.1111/1467-9884.00308
+- Dynamic bivariate Poisson model (Koopman & Lit 2015): https://doi.org/10.1111/rssa.12042
+- Football forecast evaluation using proper scoring rules: https://arxiv.org/abs/2106.14345
+
+**What is implemented:** a small, auditable scoreline challenger in dynamic_goal_engine.py. Its home and away goals are predicted from each team's time-decayed attack and defence record, differentiated by venue and shrunk toward changing league averages. It computes Poisson score grids and tests an optional low-score correction. It is *inspired by* Dixon–Coles; it does NOT claim to be the fully jointly fitted maximum-likelihood Dixon–Coles or Koopman state-space implementation.
+
+Each research walk-forward fold tunes a small grid of recency half-life, shrinkage, low-score adjustment, probability temperature and Elo mixture using **only the immediately earlier season**. It reports the following season on exactly the same fixture rows as fixed Elo, alongside the existing logistic and boosted-tree alternatives. Matched-pair, resampled log-loss difference gives a preliminary interval, not formal proof because games within a matchweek are dependent and this is retrospectively developed data. The benchmark evaluates 2023/24, 2024/25 and 2025/26 chronologically; the report is versioned separately from the older four-model report.
+
+**xG ablation change:** advanced_club_experiment.py now also fits a *compact* set of xG-for, xG-against and non-penalty-xG variables, with recency weighting and shrinkage. The historical Understat fixture must still match date, team IDs/names and final goals exactly. Larger xG and PPDA versions remain as comparisons, not assumptions that more features help.
+
+**Risk controls:** no retrospective model is promoted to mobile Weekly Brief, strong picks, or Upset Watch solely for a historic gain. Train/report failures remain visible. New models need pre-kickoff saved forecasts and additional 2026/27 results before selection for real deployment. If a scoreline challenger fails to beat fixed Elo by a meaningful margin or is poorly calibrated, keep Elo as the default. No betting-profit promise or automatic live xG inference from historical-only observations.
+
+Advanced goal model research is automatically run in the GitHub Actions workflow named Train Football Lab (research only); see data/training_report.json for the newest versioned results.
