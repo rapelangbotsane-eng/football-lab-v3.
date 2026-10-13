@@ -11,7 +11,7 @@ def fetch_report():
     response=requests.get(URL,timeout=12,headers={"User-Agent":"FootballLabTraining/1"})
     response.raise_for_status()
     report=response.json()
-    if not isinstance(report,dict) or report.get("schema_version")!=1:
+    if not isinstance(report,dict) or report.get("schema_version") not in (1,2):
         raise ValueError("Training report has unexpected schema")
     return report
 
@@ -31,6 +31,8 @@ def render():
         st.caption("Tap Refresh training results after the GitHub training workflow has completed. Results are saved as a public report, not embedded in the app code.")
         st.markdown("[View training workflow](https://github.com/rapelangbotsane-eng/football-lab-v3./actions/workflows/train-research.yml)")
         return
+    if report.get("schema_version",1)<2:
+        st.warning("These are the PREVIOUS results-based benchmarks. The newly added dynamic-goals and compact-xG experiment has not published a report yet.")
     status=report.get("status","unknown")
     if status=="queued":
         st.warning("Training job prepared. GitHub has not yet published completed results.")
