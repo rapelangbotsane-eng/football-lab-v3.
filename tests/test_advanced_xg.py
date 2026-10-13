@@ -58,7 +58,7 @@ class XgAblationTest(unittest.TestCase):
                     xga=1.0,npxgf=1.0,ppda=12.0,deep=7,xpts=1.3)
                 xm.append(dict(**g,home_metrics=m(True),away_metrics=m(False)))
         report=run_xg_experiment(games,xm)
-        self.assertEqual(len(report["table"]),4)
+        self.assertEqual(len(report["table"]),6)
         self.assertIn(report["selected"],set(report["table"]["model"]))
         self.assertEqual(report["retrospective_matches"],160)
         self.assertEqual(report["source_matched"],len(games))
