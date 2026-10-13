@@ -68,6 +68,8 @@ def render():
                 elo_log_loss=base["log_loss"],
                 brier=best["brier"],
                 elo_brier=base["brier"],
+                delta_log_loss=fold.get("selected_minus_elo_log_loss",{}).get("mean_delta"),
+                paired_ci_95=fold.get("selected_minus_elo_log_loss",{}).get("ci_95"),
                 strong_60_count=fold["selected_60_plus"]["matches"],
                 strong_60_hit_rate=fold["selected_60_plus"]["hit_rate"],
                 upset_alerts=fold["selected_upset_vs_elo"]["alerts"],
@@ -84,12 +86,18 @@ def render():
             table=[]
             for x in fold["competitors"]:
                 table.append(dict(model=x["model"],temperature=x["temperature"],
+                    goal_settings=x.get("settings"),
                     val_log_loss=x["validation"]["log_loss"],
                     test_log_loss=x["test"]["log_loss"],
                     test_brier=x["test"]["brier"],
                     test_accuracy=x["test"]["accuracy"]))
             st.dataframe(pd.DataFrame(table),hide_index=True,use_container_width=True)
-            st.caption("Model selection and probability softening used validation results only. Later seasons were scored as retrospective diagnostics and do not certify future superiority.")
+            st.caption("Model selection, goal time-decay settings, Elo blending and probability softening were chosen using the earlier validation season only. Later seasons were retrospective diagnostics, not a fresh unseen benchmark.")
+            comparison=fold.get("selected_minus_elo_log_loss")
+            if comparison:
+                st.write(f"**Selected model minus fixed Elo log loss:** {comparison['mean_delta']:+.4f} "
+                         f"(exploratory 95% paired interval: {comparison['ci_95'][0]:+.4f} to {comparison['ci_95'][1]:+.4f}).")
+                st.caption("Negative favours the challenger. The interval is exploratory, does not handle shared-matchweek dependence, and isn't prospective proof.")
     else:
         st.info("No league reports have been published yet.")
     st.subheader("Free advanced xG experiment")
