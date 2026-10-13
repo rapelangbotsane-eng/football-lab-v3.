@@ -18,7 +18,8 @@ def _compact(report):
 
 def execute(leagues=("PL",),include_advanced=False):
     report=dict(
-        schema_version=1,
+        schema_version=2,
+        experiment_revision="dynamic-goals-compact-xg-2026-10",
         generated_at=datetime.now(timezone.utc).isoformat(),
         method="Rolling-origin historical men's club results",
         test_seasons=[2023,2024,2025],
