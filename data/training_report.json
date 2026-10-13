@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "queued",
+  "generated_at": null,
+  "method": "Rolling-origin historical men's club results",
+  "leagues": {},
+  "errors": {},
+  "advanced": {
+    "status": "not_run",
+    "note": "Training scheduled; no xG result has been verified."
+  },
+  "live_model_promoted": false,
+  "caution": "Training has not completed. There are no new results to claim yet."
+}
