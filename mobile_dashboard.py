@@ -11,6 +11,7 @@ from live_data import LEAGUES, FootballDataError
 from club_data import HistoricalDataError
 from weekly_scout import forecast_week,strong_predictions,upset_predictions,SA_TIME
 from prediction_tracker import archive_local,reconcile_local
+from shadow_engine import shadow_forecast_cards
 from ui_icons import svg,navigation_css,css_mask
 
 PAGES=("Brief","60%+ picks","Upset watch","Matches","Tracker","Research")
@@ -193,6 +194,14 @@ def _scan(selected,days,token):
             # Cached by league; we do not request from the provider every rerun.
             snapshot=live_matches(code,token)
             cards,counts=forecast_week(records,trained,snapshot,league,now=now,horizon_days=days)
+            if cards:
+                try:
+                    cards=shadow_forecast_cards(records,cards,snapshot["matches"])
+                    counts["shadow_count"]=len(cards)
+                except Exception as exc:
+                    # Keep original weekly predictions intact, but mark the
+                    # unavailable challengers. Never synthesize shadow values.
+                    counts["shadow_warning"]=type(exc).__name__
             coverage[league]=counts
             all_cards.extend(cards)
             # An immutable pre-kickoff snapshot is saved on every successful scan.
@@ -288,6 +297,8 @@ def _interactive_dashboard():
             for k,v in snapshot["errors"].items():st.warning(f"{k}: {v}")
     not_covered=sum(sum(int(n.get(k,0)) for k in ("unmapped","insufficient","failed")) for n in snapshot["coverage"].values())
     if not_covered:st.caption(f"{not_covered} upcoming match(es) were not forecast because names/data were missing or predictions failed; excluded, not guessed.")
+    shadow_errors=[league for league,info in snapshot["coverage"].items() if info.get("shadow_warning")]
+    if shadow_errors:st.caption(f"Shadow research forecasts were unavailable in {len(shadow_errors)} league(s). Main predictions remain available; the tracker will not count missing challengers.")
     tracking_errors=[league for league,info in snapshot["coverage"].items() if info.get("tracker_warning")]
     if tracking_errors:st.warning(f"Forecasts were generated, but temporary local tracking storage failed in {len(tracking_errors)} league(s). Download your weekly CSV as a backup.")
     if not cards:
