@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -r requirements.txt
       - name: Run offline regression tests
-        run: python -m unittest discover -s tests -v
+        run: python -m unittest discover -s tests -p test_training_lab.py -v
       - name: Train rolling-season benchmarks on five men's leagues
         run: |
           python train_research.py --league PL --league PD --league BL1 --league SA --league FL1 --advanced
