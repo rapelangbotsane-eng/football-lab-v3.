@@ -82,6 +82,25 @@ def _forecast_candidate(name,train,val,test,columns):
         test=_safe_metrics(test["outcome"],soften(_proba(clf,xtest),temp)),
         test_proba=soften(_proba(clf,xtest),temp))
 
+def _paired_loss_difference(y,p_challenger,p_baseline):
+    """Exploratory 95% interval for log-loss difference (negative helps).
+
+    Resample within match indices, with the same matches for both forecasts.
+    Match dependence can make this interval optimistic; not a guarantee.
+    """
+    y=np.asarray(y)
+    idx=np.asarray([OUTCOMES.index(k) for k in y],dtype=int)
+    n=len(y);i=np.arange(n)
+    per_game=(-np.log(np.maximum(p_challenger[i,idx],1e-12))
+              +np.log(np.maximum(p_baseline[i,idx],1e-12)))
+    rng=np.random.default_rng(1837)
+    replicates=np.asarray([per_game[rng.integers(0,n,n)].mean() for _ in range(700)])
+    low,high=np.quantile(replicates,[.025,.975])
+    return dict(mean_delta=round(float(per_game.mean()),6),
+        ci_95=[round(float(low),6),round(float(high),6)],
+        negative_means_challenger_better=True,
+        note="Exploratory paired match bootstrap; ignores clustering by matchweek.")
+
 def rolling_benchmark(records,test_seasons=TEST_SEASONS):
     """Each test year uses earlier training, immediately prior validation season.
 
@@ -91,6 +110,11 @@ def rolling_benchmark(records,test_seasons=TEST_SEASONS):
     frame,_=build_history(records)
     if frame.empty:raise ValueError("Historical data is empty")
     groups=feature_groups(frame)
+    from dynamic_goal_engine import poisson_candidates,validated_goal_fold
+    goal_data=poisson_candidates(records)
+    frame_keys=list(zip(frame["date"],frame["home"],frame["away"]))
+    if goal_data["keys"]!=frame_keys:
+        raise ValueError("Goal and Elo probabilities must align by exact match identity/order")
     folds=[];all_rows=[]
     for year in test_seasons:
         train=frame[frame.season<=year-2].copy()
@@ -111,6 +135,13 @@ def rolling_benchmark(records,test_seasons=TEST_SEASONS):
         }
         for name,cols in groups.items():
             metrics[name]=_forecast_candidate(name,train,val,test,cols)
+        goals=validated_goal_fold(goal_data,year-1,year,elo_val,elo_test)
+        metrics["Dynamic goals + Elo"]=dict(
+            name="Dynamic goals + Elo",temperature=goals["config"]["temperature"],
+            goal_settings=goals["config"],
+            validation={k:round(v,6) for k,v in goals["validation"].items()},
+            test={k:round(v,6) for k,v in goals["test"].items()},
+            test_proba=goals["test_probs"])
         # Choose using validation log loss; fixed model names are tie-breakers.
         selected=min(metrics,key=lambda n:(metrics[n]["validation"]["log_loss"],n))
         candidate=metrics[selected]["test_proba"]
@@ -121,6 +152,7 @@ def rolling_benchmark(records,test_seasons=TEST_SEASONS):
             train_matches=len(train),validation_matches=len(val),
             test_matches=len(test),selected_by_validation=selected,
             selected_test=metrics[selected]["test"],baseline_test=metrics["Fixed Elo"]["test"],
+            selected_minus_elo_log_loss=_paired_loss_difference(test_labels,candidate,elo_test),
             selected_60_plus=strong,
             selected_upset_vs_elo={
                 "alerts":diagnostic["alerts"],"captured":diagnostic["captured"],
@@ -129,6 +161,7 @@ def rolling_benchmark(records,test_seasons=TEST_SEASONS):
             },
             competitors=[
                 dict(model=name,temperature=metrics[name]["temperature"],
+                    settings=metrics[name].get("goal_settings"),
                     validation=metrics[name]["validation"],test=metrics[name]["test"])
                 for name in metrics
             ])
