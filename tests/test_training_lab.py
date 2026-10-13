@@ -35,8 +35,11 @@ class TrainingExperimentTests(unittest.TestCase):
             self.assertIn(fold["selected_by_validation"],
                 {row["model"] for row in fold["competitors"]})
             self.assertEqual({row["model"] for row in fold["competitors"]},
-                {"Fixed Elo","Calibrated Elo","Results + Elo logistic","Results + Elo boosted"})
+                {"Fixed Elo","Calibrated Elo","Results + Elo logistic","Results + Elo boosted","Dynamic goals + Elo"})
             self.assertTrue(all(row["test"]["log_loss"]>0 for row in fold["competitors"]))
+            uncertainty=fold["selected_minus_elo_log_loss"]
+            self.assertEqual(len(uncertainty["ci_95"]),2)
+            self.assertLessEqual(uncertainty["ci_95"][0],uncertainty["ci_95"][1])
     def test_model_winner_uses_validation_only(self):
         for fold in self.study["folds"]:
             best=min(fold["competitors"],key=lambda r:(r["validation"]["log_loss"],r["model"]))
