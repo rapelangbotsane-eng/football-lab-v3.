@@ -115,3 +115,20 @@ A consistent monochrome SVG icon set replaces the colourful emoji in navigation,
 ## V3.6 — Faster iPhone navigation
 
 The six white-icon navigation tiles now use browser-side Streamlit tabs with a fixed 3-column × 2-row mobile layout, rather than six buttons that called the server on every tap. This makes switching sections client-side once the dashboard is loaded. The trade-off is a slightly larger initial UI render, so the Matches view starts with 12 cards and lets users request more. The Tracker no longer automatically blocks tab rendering with a GitHub HTTP request: use **Sync cloud archive** inside Tracker when needed. Optional StatsBomb competition discovery starts only after tapping **Load historical event seasons** inside Research, and the full research workbench is opt-in. The normal prediction/accuracy engine and saved tracker records are unchanged. Since tab CSS depends on Streamlit's frontend markup, visual deployment testing on iPhone is still required.
+
+
+## Training phase — rolling-season research experiment
+
+**Current status:** A GitHub Actions job is configured to train research models automatically on pushes to training scripts or when manually triggered. The job runs in GitHub's cloud, not on the phone, and requires no API token to obtain historical results from football-data.co.uk. It is **not** the production/live prediction model.
+
+- Data: 2020/21 through 2025/26 men's club match results for PL, PD, BL1, SA and FL1.
+- Three research evaluations: test 2023/24 (train 2020/21–2021/22, validate 2022/23); test 2024/25 (train 2020/21–2022/23, validate 2023/24); test 2025/26 (train 2020/21–2023/24, validate 2024/25).
+- Compare fixed Elo, calibrated Elo, regularised form+Elo logistic regression, and a deliberately constrained nonlinear boosted-tree model.
+- On each fold, choose the model and its temperature using **validation log loss only**. Compare actual probability log loss, multiclass Brier, top-1 accuracy, high-confidence 60%+ picks and retrospective upset signals on the subsequent season. Record data coverage and partial source failures.
+- Separately attempt historical EPL Understat xG / PPDA / deep-completion ablation where access is permitted; missing metrics are not fabricated. The advanced trial never changes live forecasts.
+- A successful workflow commits a public JSON report under data/training_report.json and uploads the same result as a GitHub Actions artifact. Open **Research → Training lab → Refresh training results** in Football Lab to read the report. GitHub Actions workflow: .github/workflows/train-research.yml.
+- The training runner is fail-closed: if the input source returns no usable matches, the report says failed; do not describe that as a trained model.
+- **Research integrity:** All previous benchmark years have been seen during earlier Football Lab development; they are retrospective development diagnostics. Prospective 2026/27 predictions saved before kickoff are necessary for credible evidence of future improvement. No automatic model promotion, no performance guarantee.
+
+### How to check the cloud training
+Go to the public GitHub repository → Actions → **Train Football Lab (research only)**. A green check indicates the workflow ran successfully; read its log and then open the app's Training lab. If workflow permissions block committing data/training_report.json, inspect its downloadable artifact. The user does not need to code.
